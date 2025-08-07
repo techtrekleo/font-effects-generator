@@ -3,7 +3,7 @@ import { DownloadIcon, ClearIcon, InspirationIcon } from './components/Icons';
 import { ColorInput } from './components/ColorInput';
 import { renderTextImage, getRandomItem, getRandomHexColor } from './utils/canvas';
 import { fonts, effects, DEFAULT_COLOR_1, DEFAULT_COLOR_2 } from './constants';
-import type { Font, FontId, EffectId } from './types';
+import type { FontId, EffectId } from './types';
 
 const App: React.FC = () => {
   const [text, setText] = useState('口袋裡的猫');
