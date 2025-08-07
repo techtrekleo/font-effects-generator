@@ -1,0 +1,6 @@
+{
+  "name": "字體特效產生器",
+  "description": "一款字體特效產生器，您可以輸入文字、選擇字體與特效，快速生成可用於影片剪輯或設計專案的透明背景PNG圖檔。",
+  "requestFramePermissions": [],
+  "prompt": ""
+}

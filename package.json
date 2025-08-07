@@ -1,0 +1,25 @@
+{
+  "name": "font-effects-generator",
+  "private": true,
+  "version": "1.0.0",
+  "description": "一款字體特效產生器，您可以輸入文字、選擇字體與特效，快速生成可用於影片剪輯或設計專案的透明背景PNG圖檔。",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "start": "serve -s dist",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "serve": "^14.2.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
+  }
+}
