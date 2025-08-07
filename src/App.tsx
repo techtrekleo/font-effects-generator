@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { DownloadIcon, ClearIcon, InspirationIcon } from './components/Icons';
 import { ColorInput } from './components/ColorInput';

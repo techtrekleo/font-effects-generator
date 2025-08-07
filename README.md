@@ -60,7 +60,3 @@ font-effects-generator/
 
 - **Build Command:** `npm run build`
 - **Output Directory:** `dist`
-
-### 透過 GitHub Actions 自動部署
-
-此專案包含一個 GitHub Actions 工作流程，當您推送程式碼到 `main` 分支時，它會自動建置專案並將其部署到 GitHub Pages。您可以在儲存庫的 `Settings > Pages` 中找到您的線上應用程式網址。

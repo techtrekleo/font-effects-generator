@@ -1,4 +1,3 @@
-
 import type { Font, EffectId } from '../types';
 
 // Helper to generate an image from text with canvas effects

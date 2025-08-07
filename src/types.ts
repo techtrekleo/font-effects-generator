@@ -1,4 +1,3 @@
-
 import type { fonts, effects } from './constants';
 
 export type Font = typeof fonts[number];
