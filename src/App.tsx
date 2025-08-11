@@ -3,7 +3,7 @@ import { DownloadIcon, ClearIcon, InspirationIcon, PhotoIcon } from './component
 import { ColorInput } from './components/ColorInput';
 import { renderComposition, getRandomItem, getRandomHexColor } from './utils/canvas';
 import { fonts, effects, canvasSizes, DEFAULT_COLOR_1, DEFAULT_COLOR_2 } from './constants';
-import type { FontId, EffectId, TextBlock, CanvasSizeId } from './types';
+import type { TextBlock, CanvasSizeId } from './types';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'center' | 'corner'>('center');
@@ -13,16 +13,16 @@ const App: React.FC = () => {
     text: '口袋裡的猫',
     fontId: 'noto-sans-tc-900',
     effectId: 'shadow',
-    color1: '#FFFFFF',
-    color2: '#000000',
+    color1: DEFAULT_COLOR_1,
+    color2: DEFAULT_COLOR_2,
     fontSize: 120,
   };
   const initialCornerText: TextBlock = {
     text: '',
     fontId: 'taipei-sans-700',
     effectId: 'none',
-    color1: '#FFFFFF',
-    color2: '#000000',
+    color1: DEFAULT_COLOR_1,
+    color2: DEFAULT_COLOR_2,
     fontSize: 40,
   };
 
@@ -143,7 +143,12 @@ const App: React.FC = () => {
     }
   }
 
-  const hasContent = centerText.text.trim() || cornerText.text.trim() || backgroundImage;
+  // Deep comparison to check if any user-configurable state has changed.
+  const isPristine =
+    JSON.stringify(centerText) === JSON.stringify(initialCenterText) &&
+    JSON.stringify(cornerText) === JSON.stringify(initialCornerText) &&
+    backgroundImage === null &&
+    canvasSizeId === 'square';
 
   return (
     <div className="bg-gray-900 text-white min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8" style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
@@ -250,7 +255,7 @@ const App: React.FC = () => {
               <button onClick={handleDownload} disabled={!outputImage} className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg">
                 <DownloadIcon /> 下載圖片
               </button>
-              <button onClick={handleClear} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+              <button onClick={handleClear} disabled={isPristine} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg disabled:bg-gray-600 disabled:cursor-not-allowed">
                 <ClearIcon /> 全部清除
               </button>
             </div>
