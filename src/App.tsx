@@ -3,7 +3,7 @@ import { DownloadIcon, ClearIcon, InspirationIcon, PhotoIcon } from './component
 import { ColorInput } from './components/ColorInput';
 import { renderComposition, getRandomItem, getRandomHexColor } from './utils/canvas';
 import { fonts, effects, canvasSizes, DEFAULT_COLOR_1, DEFAULT_COLOR_2 } from './constants';
-import type { TextBlock, CanvasSizeId } from './types';
+import type { TextBlock, CanvasSizeId, EffectId } from './types';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'center' | 'corner'>('center');
@@ -12,7 +12,7 @@ const App: React.FC = () => {
   const initialCenterText: TextBlock = {
     text: '口袋裡的猫',
     fontId: 'noto-sans-tc-900',
-    effectId: 'shadow',
+    effectIds: ['shadow'],
     color1: DEFAULT_COLOR_1,
     color2: DEFAULT_COLOR_2,
     fontSize: 120,
@@ -20,7 +20,7 @@ const App: React.FC = () => {
   const initialCornerText: TextBlock = {
     text: '',
     fontId: 'taipei-sans-700',
-    effectId: 'none',
+    effectIds: [],
     color1: DEFAULT_COLOR_1,
     color2: DEFAULT_COLOR_2,
     fontSize: 40,
@@ -61,7 +61,6 @@ const App: React.FC = () => {
       };
       reader.readAsDataURL(file);
     }
-     // Reset file input to allow re-uploading the same file
     if(event.target) {
       event.target.value = '';
     }
@@ -89,9 +88,36 @@ const App: React.FC = () => {
     document.body.removeChild(link);
   };
   
+  const handleEffectToggle = (toggledEffectId: EffectId) => {
+    setActiveTextConfig(prev => {
+        if (toggledEffectId === 'none') {
+            return { ...prev, effectIds: [] };
+        }
+        const currentEffectIds = prev.effectIds || [];
+        const newEffectIds = new Set(currentEffectIds);
+        
+        if (newEffectIds.has(toggledEffectId)) {
+            newEffectIds.delete(toggledEffectId);
+        } else {
+            newEffectIds.add(toggledEffectId);
+        }
+        return { ...prev, effectIds: Array.from(newEffectIds).sort() };
+    });
+  };
+
   const handleInspiration = () => {
     const randomFont = getRandomItem(fonts);
-    const randomEffect = getRandomItem(effects);
+    const effectsToSample = effects.filter(e => e.id !== 'none');
+    const numEffects = Math.floor(Math.random() * 3) + 1; // 1 to 3 effects
+    const randomEffectIds: EffectId[] = [];
+    while (randomEffectIds.length < numEffects && effectsToSample.length > 0) {
+        const randomIndex = Math.floor(Math.random() * effectsToSample.length);
+        const randomEffect = effectsToSample.splice(randomIndex, 1)[0];
+        // Avoid incompatible combinations for better results
+        if (randomEffect.id === 'gradient' && randomEffectIds.includes('neon')) continue;
+        if (randomEffect.id === 'neon' && randomEffectIds.includes('gradient')) continue;
+        randomEffectIds.push(randomEffect.id);
+    }
     
     setActiveTextConfig(prev => {
         const newText = !prev.text.trim()
@@ -102,7 +128,7 @@ const App: React.FC = () => {
             ...prev,
             text: newText,
             fontId: randomFont.id,
-            effectId: randomEffect.id,
+            effectIds: randomEffectIds.sort(),
             color1: getRandomHexColor(),
             color2: getRandomHexColor(),
             fontSize: prev.fontSize // Keep existing font size
@@ -111,39 +137,41 @@ const App: React.FC = () => {
   };
 
   const renderColorPickers = () => {
-    switch(activeTextConfig.effectId) {
-        case 'none':
-            return <ColorInput label="文字顏色" value={activeTextConfig.color1} onChange={(c) => setActiveTextConfig(p => ({...p, color1: c}))} />;
-        case 'shadow':
-            return <>
-                <ColorInput label="文字顏色" value={activeTextConfig.color1} onChange={(c) => setActiveTextConfig(p => ({...p, color1: c}))} />
-                <ColorInput label="陰影顏色" value={activeTextConfig.color2} onChange={(c) => setActiveTextConfig(p => ({...p, color2: c}))} />
-            </>;
-        case 'neon':
-            return <ColorInput label="光暈顏色" value={activeTextConfig.color1} onChange={(c) => setActiveTextConfig(p => ({...p, color1: c}))} />;
-        case 'glitch':
-            return <ColorInput label="文字顏色" value={activeTextConfig.color1} onChange={(c) => setActiveTextConfig(p => ({...p, color1: c}))} />;
-        case 'gradient':
-            return <>
-                <ColorInput label="漸層起始" value={activeTextConfig.color1} onChange={(c) => setActiveTextConfig(p => ({...p, color1: c}))} />
-                <ColorInput label="漸層結束" value={activeTextConfig.color2} onChange={(c) => setActiveTextConfig(p => ({...p, color2: c}))} />
-            </>;
-        case 'outline':
-            return <>
-                <ColorInput label="文字顏色" value={activeTextConfig.color1} onChange={(c) => setActiveTextConfig(p => ({...p, color1: c}))} />
-                <ColorInput label="描邊顏色" value={activeTextConfig.color2} onChange={(c) => setActiveTextConfig(p => ({...p, color2: c}))} />
-            </>;
-        case 'faux-3d':
-            return <>
-                <ColorInput label="文字顏色" value={activeTextConfig.color1} onChange={(c) => setActiveTextConfig(p => ({...p, color1: c}))} />
-                <ColorInput label="立體陰影" value={activeTextConfig.color2} onChange={(c) => setActiveTextConfig(p => ({...p, color2: c}))} />
-            </>;
-        default:
-            return null;
-    }
-  }
+    const effects = new Set(activeTextConfig.effectIds);
 
-  // Deep comparison to check if any user-configurable state has changed.
+    const pickers: React.ReactNode[] = [];
+
+    if (effects.has('gradient')) {
+        pickers.push(
+            <ColorInput key="grad1" label="漸層起始" value={activeTextConfig.color1} onChange={(c) => setActiveTextConfig(p => ({ ...p, color1: c }))} />,
+            <ColorInput key="grad2" label="漸層結束" value={activeTextConfig.color2} onChange={(c) => setActiveTextConfig(p => ({ ...p, color2: c }))} />
+        );
+    } else if (effects.has('neon')) {
+        pickers.push(
+             <ColorInput key="neon1" label="光暈顏色" value={activeTextConfig.color1} onChange={(c) => setActiveTextConfig(p => ({ ...p, color1: c }))} />
+        );
+    } else {
+        // Base case for text color
+        pickers.push(
+            <ColorInput key="c1" label="文字顏色" value={activeTextConfig.color1} onChange={(c) => setActiveTextConfig(p => ({...p, color1: c}))} />
+        );
+    }
+
+    const hasColor2Effect = effects.has('shadow') || effects.has('outline') || effects.has('faux-3d');
+    if (!effects.has('gradient') && hasColor2Effect) {
+        const labels = [];
+        if (effects.has('shadow')) labels.push('陰影');
+        if (effects.has('outline')) labels.push('描邊');
+        if (effects.has('faux-3d')) labels.push('立體');
+        
+        pickers.push(
+            <ColorInput key="c2" label={`${labels.join('/')} 顏色`} value={activeTextConfig.color2} onChange={(c) => setActiveTextConfig(p => ({ ...p, color2: c }))} />
+        );
+    }
+    
+    return <>{pickers}</>;
+  };
+
   const isPristine =
     JSON.stringify(centerText) === JSON.stringify(initialCenterText) &&
     JSON.stringify(cornerText) === JSON.stringify(initialCornerText) &&
@@ -210,40 +238,54 @@ const App: React.FC = () => {
             />
             <p className="text-right text-sm text-gray-500 -mt-3">{activeTextConfig.text.length} / 30</p>
             
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {fonts.map(font => (
-                <button
-                  key={font.id}
-                  onClick={() => setActiveTextConfig(p => ({...p, fontId: font.id}))}
-                  className={`py-2 px-3 rounded-lg text-center transition-all duration-200 border-2 text-sm sm:text-base truncate ${activeTextConfig.fontId === font.id ? 'bg-blue-600 border-blue-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'}`}
-                  style={{fontFamily: `"${font.family}"`, fontWeight: font.weight }}
-                  title={font.name}
-                >
-                  {font.name}
-                </button>
-              ))}
+            <div className="flex flex-col gap-3">
+              <label className="block text-base font-semibold text-gray-300">字體</label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {fonts.map(font => (
+                  <button
+                    key={font.id}
+                    onClick={() => setActiveTextConfig(p => ({...p, fontId: font.id}))}
+                    className={`py-2 px-3 rounded-lg text-center transition-all duration-200 border-2 text-sm sm:text-base truncate ${activeTextConfig.fontId === font.id ? 'bg-blue-600 border-blue-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'}`}
+                    style={{fontFamily: `"${font.family}"`, fontWeight: font.weight }}
+                    title={font.name}
+                  >
+                    {font.name}
+                  </button>
+                ))}
+              </div>
             </div>
             
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-              {effects.map(effect => (
-                <button
-                  key={effect.id}
-                  onClick={() => setActiveTextConfig(p => ({...p, effectId: effect.id}))}
-                  className={`py-2 px-3 rounded-lg text-center font-semibold transition-all duration-200 border-2 ${activeTextConfig.effectId === effect.id ? 'bg-blue-600 border-blue-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'}`}
-                >
-                  {effect.name}
-                </button>
-              ))}
+            <div className="border-t border-gray-700/50 my-2"></div>
+            
+            <div className="flex flex-col gap-3">
+              <label className="block text-base font-semibold text-gray-300">特效 (可複選)</label>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                {effects.map(effect => {
+                  const isActive = effect.id === 'none' 
+                    ? activeTextConfig.effectIds.length === 0 
+                    : activeTextConfig.effectIds.includes(effect.id);
+                  return (
+                    <button
+                      key={effect.id}
+                      onClick={() => handleEffectToggle(effect.id)}
+                      className={`py-2 px-3 rounded-lg text-center font-semibold transition-all duration-200 border-2 ${isActive ? 'bg-blue-600 border-blue-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'}`}
+                    >
+                      {effect.name}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
             
+            <div className="border-t border-gray-700/50 my-2"></div>
+
             <div className="flex flex-col gap-3">
               <label className="block text-base font-semibold text-gray-300">字體大小: {activeTextConfig.fontSize}px</label>
               <input type="range" min="10" max="400" value={activeTextConfig.fontSize} onChange={e => setActiveTextConfig(p => ({...p, fontSize: Number(e.target.value)}))} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
             </div>
 
-            {activeTextConfig.effectId !== 'none' && (
-              <div className="flex flex-col gap-3">{renderColorPickers()}</div>
-            )}
+            <div className="flex flex-col gap-3">{renderColorPickers()}</div>
+
           </div>
 
 

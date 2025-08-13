@@ -25,9 +25,11 @@ const drawImageToCanvas = (ctx: CanvasRenderingContext2D, image: HTMLImageElemen
 const drawText = (ctx: CanvasRenderingContext2D, config: TextBlock, position: 'center' | 'corner') => {
     if (!config.text.trim()) return;
 
-    const { text, fontId, effectId, color1, color2, fontSize } = config;
+    const { text, fontId, effectIds, color1, color2, fontSize } = config;
     const fontObject = fonts.find(f => f.id === fontId);
     if (!fontObject) return;
+
+    const effects = new Set(effectIds || []);
 
     // Reset any lingering shadow effects from previous renders
     ctx.shadowColor = 'transparent';
@@ -35,8 +37,9 @@ const drawText = (ctx: CanvasRenderingContext2D, config: TextBlock, position: 'c
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
 
-    // Common text settings
-    ctx.font = `${fontObject.weight} ${fontSize}px "${fontObject.family}"`;
+    // Font settings: apply bold if selected
+    const fontWeight = effects.has('bold') ? '900' : fontObject.weight;
+    ctx.font = `${fontWeight} ${fontSize}px "${fontObject.family}"`;
     
     let x, y;
     const PADDING_X = ctx.canvas.width * 0.05; // 5% horizontal padding
@@ -54,64 +57,81 @@ const drawText = (ctx: CanvasRenderingContext2D, config: TextBlock, position: 'c
         ctx.textBaseline = 'bottom';
     }
 
-    // Apply selected effect
-    switch (effectId) {
-        case 'shadow':
-            ctx.shadowColor = color2;
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetX = 5;
-            ctx.shadowOffsetY = 5;
-            ctx.fillStyle = color1;
-            ctx.fillText(text, x, y);
-            break;
-        case 'neon':
-            ctx.fillStyle = color1;
-            ctx.shadowColor = color1;
-            ctx.shadowBlur = 15;
-            ctx.fillText(text, x, y);
-            ctx.shadowBlur = 30; // Stronger glow
-            ctx.fillText(text, x, y);
-            break;
-        case 'gradient':
-            const gradient = ctx.createLinearGradient(0, y - fontSize / 2, 0, y + fontSize / 2);
-            gradient.addColorStop(0, color1);
-            gradient.addColorStop(1, color2);
-            ctx.fillStyle = gradient;
-            ctx.fillText(text, x, y);
-            break;
-        case 'outline':
-            ctx.strokeStyle = color2;
-            ctx.lineWidth = Math.max(2, fontSize / 20); // Scale line width with font size
-            ctx.lineJoin = 'round';
-            ctx.miterLimit = 2;
-            ctx.strokeText(text, x, y);
-            ctx.fillStyle = color1;
-            ctx.fillText(text, x, y);
-            break;
-        case 'faux-3d':
-            const depth = Math.max(1, Math.floor(fontSize / 20));
-            ctx.fillStyle = color2;
-            for (let i = 1; i <= depth; i++) {
-                ctx.fillText(text, x + i, y + i);
-            }
-            ctx.fillStyle = color1;
-            ctx.fillText(text, x, y);
-            break;
-        case 'glitch':
-            ctx.fillStyle = 'rgba(255, 0, 255, 0.5)'; // Magenta
-            ctx.fillText(text, x - 4, y);
-            ctx.fillStyle = 'rgba(0, 255, 255, 0.5)'; // Cyan
-            ctx.fillText(text, x + 4, y);
-            ctx.fillStyle = color1;
-            ctx.fillText(text, x, y);
-            break;
-        case 'none':
-        default:
-            ctx.fillStyle = color1;
-            ctx.fillText(text, x, y);
-            break;
+    // --- Rendering Pipeline ---
+
+    // 1. Faux 3D (drawn first, in the back)
+    if (effects.has('faux-3d')) {
+        const depth = Math.max(1, Math.floor(fontSize / 30));
+        ctx.fillStyle = color2;
+        for (let i = 1; i <= depth; i++) {
+            ctx.fillText(text, x + i, y + i);
+        }
     }
-     // Reset shadow for the next text block
+
+    // 2. Fill Style setup
+    if (effects.has('gradient')) {
+        const gradient = ctx.createLinearGradient(0, y - fontSize / 2, 0, y + fontSize / 2);
+        gradient.addColorStop(0, color1);
+        gradient.addColorStop(1, color2);
+        ctx.fillStyle = gradient;
+    } else if (effects.has('neon')) {
+        ctx.fillStyle = '#FFFFFF'; // Neon text is typically white on a glow
+    } else {
+        ctx.fillStyle = color1;
+    }
+
+    // 3. Shadow setup (applied before fill to affect the whole object including stroke)
+    if (effects.has('neon')) {
+        ctx.shadowColor = color1; // Glow color
+        ctx.shadowBlur = 15;
+    } else if (effects.has('shadow')) {
+        ctx.shadowColor = color2;
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetX = 5;
+        ctx.shadowOffsetY = 5;
+    }
+
+    // 4. Stroke
+    if (effects.has('outline')) {
+        ctx.strokeStyle = color2;
+        ctx.lineWidth = Math.max(2, fontSize / 20);
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
+        ctx.strokeText(text, x, y);
+    }
+    
+    // 5. Main text fill
+    ctx.fillText(text, x, y);
+
+    // 5.1. Extra Neon pass for more intensity
+    if (effects.has('neon')) {
+        ctx.shadowBlur = 30; // Stronger glow
+        ctx.fillText(text, x, y);
+    }
+    
+    // Reset shadow before glitch effect
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    // 6. Glitch effect (drawn last, on top)
+    if (effects.has('glitch')) {
+        ctx.fillStyle = 'rgba(255, 0, 255, 0.5)'; // Magenta
+        ctx.fillText(text, x - 5, y);
+        ctx.fillStyle = 'rgba(0, 255, 255, 0.5)'; // Cyan
+        ctx.fillText(text, x + 5, y);
+        // We draw the original text one more time if there's no solid fill, to ensure it's visible
+        if (effects.has('neon')) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillText(text, x, y);
+        } else if (!effects.has('gradient')) {
+             ctx.fillStyle = color1;
+             ctx.fillText(text, x, y);
+        }
+    }
+    
+     // Final reset for the next text block
     ctx.shadowColor = 'transparent';
     ctx.shadowBlur = 0;
     ctx.shadowOffsetX = 0;

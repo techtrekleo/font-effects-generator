@@ -8,7 +8,7 @@ export type CanvasSizeId = typeof canvasSizes[number]['id'];
 export interface TextBlock {
     text: string;
     fontId: FontId;
-    effectId: EffectId;
+    effectIds: EffectId[];
     color1: string;
     color2: string;
     fontSize: number;

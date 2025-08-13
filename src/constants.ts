@@ -5,6 +5,8 @@ export const fonts = [
   { id: 'noto-sans-tc-500', name: '思源黑體 (中)', family: 'Noto Sans TC', weight: 500 },
   { id: 'm-plus-rounded-1c-700', name: '圓體 (粗)', family: 'M PLUS Rounded 1c', weight: 700 },
   { id: 'hina-mincho', name: '日式明朝', family: 'Hina Mincho', weight: 400 },
+  { id: 'jason-handwriting-1', name: '清松手寫體 v1', family: 'Jason Handwriting 1', weight: 400 },
+  { id: 'jason-handwriting-2', name: '清松手寫體 v2', family: 'Jason Handwriting 2', weight: 400 },
   { id: 'rocknroll-one', name: '搖滾圓體', family: 'RocknRoll One', weight: 400 },
   { id: 'reggae-one', name: '雷鬼 Stencil', family: 'Reggae One', weight: 400 },
   { id: 'rampart-one', name: '立體裝甲', family: 'Rampart One', weight: 400 },
@@ -14,6 +16,7 @@ export const fonts = [
 // --- 本地 Canvas 特效設定 ---
 export const effects = [
   { id: 'none', name: '無' },
+  { id: 'bold', name: '粗體' },
   { id: 'shadow', name: '陰影' },
   { id: 'neon', name: '霓虹光' },
   { id: 'gradient', name: '漸層' },
