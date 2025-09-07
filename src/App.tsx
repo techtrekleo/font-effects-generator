@@ -327,7 +327,17 @@ const App: React.FC = () => {
       <footer className="w-full max-w-6xl mt-8 mb-4">
         <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700 text-center">
           <div className="flex flex-col items-center gap-4">
-            <p className="text-gray-300 text-sm">喜歡這個工具嗎？支持開發者繼續創作！</p>
+            <p className="text-gray-300 text-sm">© {new Date().getFullYear()} Sonic Pulse. Built with ❤️ by 音樂脈動-Sonic Pulse</p>
+            <p className="mt-2">
+              <a 
+                href="https://www.youtube.com/@%E9%9F%B3%E6%A8%82%E8%84%88%E5%8B%95SonicPulse" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 font-medium"
+              >
+                🎵 Sonic Pulse YouTube Channel
+              </a>
+            </p>
             <a
               href="https://www.paypal.com/ncp/payment/PK49RJYSTAV6Y"
               target="_blank"
@@ -337,7 +347,6 @@ const App: React.FC = () => {
               <span className="text-xl">🐱</span>
               <span>抖內支持開發者</span>
             </a>
-            <p className="text-gray-500 text-xs">© 2024 Font Effects Generator</p>
           </div>
         </div>
       </footer>
