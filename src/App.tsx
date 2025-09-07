@@ -181,7 +181,7 @@ const App: React.FC = () => {
   return (
     <div className="bg-gray-900 text-white min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8" style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
       <header className="w-full max-w-6xl mb-6 text-center">
-        <h1 className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500" style={{ fontFamily: "'Noto Sans TC', sans-serif", fontWeight: 900 }}>字體特效產生器</h1>
+        <h1 className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-600" style={{ fontFamily: "'Noto Sans TC', sans-serif", fontWeight: 900 }}>字體特效產生器</h1>
         <p className="text-gray-400 mt-2">結合背景圖片，創造獨一無二的客製化字卡</p>
       </header>
       
@@ -195,7 +195,7 @@ const App: React.FC = () => {
                   <button
                     key={size.id}
                     onClick={() => setCanvasSizeId(size.id)}
-                    className={`py-2 px-3 rounded-lg text-center font-semibold transition-all duration-200 border-2 text-sm truncate ${canvasSizeId === size.id ? 'bg-blue-600 border-blue-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'}`}
+                    className={`py-2 px-3 rounded-lg text-center font-semibold transition-all duration-200 border-2 text-sm truncate ${canvasSizeId === size.id ? 'bg-cyan-600 border-cyan-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'}`}
                     title={`${size.name} (${size.width}x${size.height})`}
                   >
                     {size.name}
@@ -208,7 +208,7 @@ const App: React.FC = () => {
             <label className="block text-lg font-semibold text-gray-300">2. 上傳背景 (選用)</label>
              <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
             <div className="flex gap-3">
-                <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg transition">
                     <PhotoIcon /> 上傳圖片
                 </button>
                 {backgroundImage && (
@@ -222,8 +222,8 @@ const App: React.FC = () => {
           <div className="border-t border-b border-gray-700 py-4 flex flex-col gap-4">
               <label className="block text-lg font-semibold text-gray-300">3. 編輯文字區塊</label>
               <div className="grid grid-cols-2 gap-3">
-                  <button onClick={() => setActiveTab('center')} className={`py-2 px-3 rounded-lg font-semibold transition-colors ${activeTab === 'center' ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}>中央文字</button>
-                  <button onClick={() => setActiveTab('corner')} className={`py-2 px-3 rounded-lg font-semibold transition-colors ${activeTab === 'corner' ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}>角落文字</button>
+                  <button onClick={() => setActiveTab('center')} className={`py-2 px-3 rounded-lg font-semibold transition-colors ${activeTab === 'center' ? 'bg-cyan-600 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}>中央文字</button>
+                  <button onClick={() => setActiveTab('corner')} className={`py-2 px-3 rounded-lg font-semibold transition-colors ${activeTab === 'corner' ? 'bg-cyan-600 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}>角落文字</button>
               </div>
           </div>
           
@@ -245,7 +245,7 @@ const App: React.FC = () => {
                   <button
                     key={font.id}
                     onClick={() => setActiveTextConfig(p => ({...p, fontId: font.id}))}
-                    className={`py-2 px-3 rounded-lg text-center transition-all duration-200 border-2 text-sm sm:text-base truncate ${activeTextConfig.fontId === font.id ? 'bg-blue-600 border-blue-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'}`}
+                    className={`py-2 px-3 rounded-lg text-center transition-all duration-200 border-2 text-sm sm:text-base truncate ${activeTextConfig.fontId === font.id ? 'bg-cyan-600 border-cyan-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'}`}
                     style={{fontFamily: `"${font.family}"`, fontWeight: font.weight }}
                     title={font.name}
                   >
@@ -268,7 +268,7 @@ const App: React.FC = () => {
                     <button
                       key={effect.id}
                       onClick={() => handleEffectToggle(effect.id)}
-                      className={`py-2 px-3 rounded-lg text-center font-semibold transition-all duration-200 border-2 ${isActive ? 'bg-blue-600 border-blue-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'}`}
+                      className={`py-2 px-3 rounded-lg text-center font-semibold transition-all duration-200 border-2 ${isActive ? 'bg-cyan-600 border-cyan-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'}`}
                     >
                       {effect.name}
                     </button>
@@ -290,7 +290,7 @@ const App: React.FC = () => {
 
 
           <div className="mt-auto pt-6 border-t border-gray-700/50 flex flex-col gap-4">
-            <button onClick={handleInspiration} className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+            <button onClick={handleInspiration} className="w-full flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg">
               <InspirationIcon /> 給我靈感！
             </button>
             <div className="flex flex-col sm:flex-row gap-4">
