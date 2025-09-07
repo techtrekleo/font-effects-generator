@@ -322,6 +322,25 @@ const App: React.FC = () => {
           )}
         </div>
       </main>
+      
+      {/* 抖內按鈕頁腳 */}
+      <footer className="w-full max-w-6xl mt-8 mb-4">
+        <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700 text-center">
+          <div className="flex flex-col items-center gap-4">
+            <p className="text-gray-300 text-sm">喜歡這個工具嗎？支持開發者繼續創作！</p>
+            <a
+              href="https://www.paypal.com/ncp/payment/PK49RJYSTAV6Y"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-full font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            >
+              <span className="text-xl">🐱</span>
+              <span>抖內支持開發者</span>
+            </a>
+            <p className="text-gray-500 text-xs">© 2024 Font Effects Generator</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
