@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import type { TextBlock } from '../types';
 
 interface VisualCanvasProps {
@@ -24,10 +24,34 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [draggedTextBlockId, setDraggedTextBlockId] = useState<string | null>(null);
+  const [dragMode, setDragMode] = useState<'move' | 'resize'>('move');
+  const [initialFontSize, setInitialFontSize] = useState(0);
+  const [animationFrameId, setAnimationFrameId] = useState<number | null>(null);
 
 
-  // 直接在 canvas 上繪製內容
+  // 使用 useRef 來緩存背景圖片，避免重複載入
+  const backgroundImageRef = useRef<HTMLImageElement | null>(null);
+  const backgroundImageLoadedRef = useRef<boolean>(false);
+
+  // 載入背景圖片
   useEffect(() => {
+    if (backgroundImage) {
+      const img = new Image();
+      img.onload = () => {
+        backgroundImageRef.current = img;
+        backgroundImageLoadedRef.current = true;
+        drawCanvas();
+      };
+      img.src = backgroundImage;
+    } else {
+      backgroundImageRef.current = null;
+      backgroundImageLoadedRef.current = true;
+      drawCanvas();
+    }
+  }, [backgroundImage]);
+
+  // 繪製 canvas 內容
+  const drawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -37,72 +61,49 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     // 清除畫布
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 繪製背景圖片
-    if (backgroundImage) {
-      const img = new Image();
-      img.onload = () => {
-        // 重新繪製背景和文字
-        drawCanvasContent();
-      };
-      img.src = backgroundImage;
-    } else {
-      drawCanvasContent();
-    }
+    // 繪製背景圖片（如果有的話）
+    if (backgroundImageRef.current && backgroundImageLoadedRef.current) {
+      const img = backgroundImageRef.current;
+      const canvasAspect = canvas.width / canvas.height;
+      const imageAspect = img.width / img.height;
+      let sx, sy, sWidth, sHeight;
 
-    function drawCanvasContent() {
-      if (!ctx) return;
-      
-      // 繪製背景圖片（如果有的話）
-      if (backgroundImage) {
-        const img = new Image();
-        img.onload = () => {
-          if (!canvas) return;
-          const canvasAspect = canvas.width / canvas.height;
-          const imageAspect = img.width / img.height;
-          let sx, sy, sWidth, sHeight;
-
-          if (imageAspect > canvasAspect) {
-            sHeight = img.height;
-            sWidth = sHeight * canvasAspect;
-            sx = (img.width - sWidth) / 2;
-            sy = 0;
-          } else {
-            sWidth = img.width;
-            sHeight = sWidth / canvasAspect;
-            sx = 0;
-            sy = (img.height - sHeight) / 2;
-          }
-          ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
-          
-          // 繪製文字
-          drawAllText();
-        };
-        img.src = backgroundImage;
+      if (imageAspect > canvasAspect) {
+        sHeight = img.height;
+        sWidth = sHeight * canvasAspect;
+        sx = (img.width - sWidth) / 2;
+        sy = 0;
       } else {
-        // 繪製文字
-        drawAllText();
+        sWidth = img.width;
+        sHeight = sWidth / canvasAspect;
+        sx = 0;
+        sy = (img.height - sHeight) / 2;
       }
+      ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
     }
 
-    function drawAllText() {
-      if (!ctx) return;
+    // 繪製所有文字
+    textBlocks.forEach(textBlock => {
+      if (!textBlock.text.trim()) return;
       
-      textBlocks.forEach(textBlock => {
-        if (!textBlock.text.trim()) return;
-        
-        const { text, color1, fontSize, x, y } = textBlock;
-        
-        // 這裡需要導入字體相關的邏輯，暫時使用簡化版本
-        ctx.font = `${fontSize}px Arial`;
-        ctx.fillStyle = color1;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        
-        // 簡單的文字繪製
-        ctx.fillText(text, x, y);
-      });
+      const { text, color1, fontSize, x, y } = textBlock;
+      
+      // 使用簡化的字體繪製
+      ctx.font = `${fontSize}px Arial`;
+      ctx.fillStyle = color1;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      
+      ctx.fillText(text, x, y);
+    });
+  }, [textBlocks, canvasWidth, canvasHeight]);
+
+  // 當文字區塊或畫布尺寸改變時重新繪製
+  useEffect(() => {
+    if (backgroundImageLoadedRef.current) {
+      drawCanvas();
     }
-  }, [textBlocks, backgroundImage, canvasWidth, canvasHeight]);
+  }, [drawCanvas]);
 
   const getCanvasRect = () => {
     const canvas = canvasRef.current;
@@ -160,46 +161,95 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     if (clickedResult) {
       setIsDragging(true);
       setDraggedTextBlockId(clickedResult.textBlock.id);
+      setDragMode(clickedResult.mode);
       onTextBlockClick(clickedResult.textBlock.id);
       
-      // 計算拖動偏移量
-      setDragOffset({
-        x: coords.x - clickedResult.textBlock.x,
-        y: coords.y - clickedResult.textBlock.y
-      });
+      if (clickedResult.mode === 'resize') {
+        // 調整大小模式：記錄初始字體大小
+        setInitialFontSize(clickedResult.textBlock.fontSize);
+        setDragOffset({
+          x: coords.x - (clickedResult.textBlock.x + clickedResult.textBlock.text.length * clickedResult.textBlock.fontSize * 0.6),
+          y: coords.y - (clickedResult.textBlock.y + clickedResult.textBlock.fontSize)
+        });
+      } else {
+        // 移動模式：計算拖動偏移量
+        setDragOffset({
+          x: coords.x - clickedResult.textBlock.x,
+          y: coords.y - clickedResult.textBlock.y
+        });
+      }
     }
   };
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging || !draggedTextBlockId) return;
     
-    const coords = getCanvasCoordinates(e.clientX, e.clientY);
-    const textBlock = textBlocks.find(tb => tb.id === draggedTextBlockId);
+    // 取消之前的動畫幀
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+    }
     
-    if (!textBlock) return;
-    
-    // 計算新位置
-    const newX = coords.x - dragOffset.x;
-    const newY = coords.y - dragOffset.y;
-    
-    // 限制在畫布範圍內
-    const textWidth = textBlock.text.length * textBlock.fontSize * 0.6;
-    const textHeight = textBlock.fontSize;
-    
-    const constrainedX = Math.max(0, Math.min(newX, canvasWidth - textWidth));
-    const constrainedY = Math.max(0, Math.min(newY, canvasHeight - textHeight));
-    
-    // 更新文字區塊位置
-    onTextBlockUpdate({
-      ...textBlock,
-      x: constrainedX,
-      y: constrainedY
+    // 使用 requestAnimationFrame 來優化性能
+    const frameId = requestAnimationFrame(() => {
+      const coords = getCanvasCoordinates(e.clientX, e.clientY);
+      const textBlock = textBlocks.find(tb => tb.id === draggedTextBlockId);
+      
+      if (!textBlock) return;
+      
+      if (dragMode === 'resize') {
+        // 調整大小模式：根據拖動距離計算新的字體大小
+        const deltaX = coords.x - (textBlock.x + textBlock.text.length * textBlock.fontSize * 0.6);
+        const deltaY = coords.y - (textBlock.y + textBlock.fontSize);
+        
+        // 使用較大的變化量來調整字體大小
+        const delta = Math.max(Math.abs(deltaX), Math.abs(deltaY));
+        const scaleFactor = delta / 50; // 每50像素變化對應1倍字體大小變化
+        
+        let newFontSize = initialFontSize + (deltaX + deltaY) * scaleFactor;
+        
+        // 限制字體大小範圍
+        newFontSize = Math.max(10, Math.min(400, newFontSize));
+        
+        // 更新文字區塊字體大小
+        onTextBlockUpdate({
+          ...textBlock,
+          fontSize: Math.round(newFontSize)
+        });
+      } else {
+        // 移動模式：計算新位置
+        const newX = coords.x - dragOffset.x;
+        const newY = coords.y - dragOffset.y;
+        
+        // 限制在畫布範圍內
+        const textWidth = textBlock.text.length * textBlock.fontSize * 0.6;
+        const textHeight = textBlock.fontSize;
+        
+        const constrainedX = Math.max(0, Math.min(newX, canvasWidth - textWidth));
+        const constrainedY = Math.max(0, Math.min(newY, canvasHeight - textHeight));
+        
+        // 更新文字區塊位置
+        onTextBlockUpdate({
+          ...textBlock,
+          x: constrainedX,
+          y: constrainedY
+        });
+      }
     });
+    
+    setAnimationFrameId(frameId);
   };
 
   const handleMouseUp = () => {
+    // 取消動畫幀
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      setAnimationFrameId(null);
+    }
+    
     setIsDragging(false);
     setDraggedTextBlockId(null);
+    setDragMode('move');
+    setInitialFontSize(0);
     setDragOffset({ x: 0, y: 0 });
   };
 
@@ -213,6 +263,15 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       };
     }
   }, [isDragging, dragOffset, draggedTextBlockId]);
+
+  // 清理動畫幀
+  useEffect(() => {
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [animationFrameId]);
 
   return (
     <div className="relative">
