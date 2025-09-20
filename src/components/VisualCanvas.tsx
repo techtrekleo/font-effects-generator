@@ -111,7 +111,9 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
   const getCanvasRect = () => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
-    return canvas.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
+    console.log('畫布邊界:', rect);
+    return rect;
   };
 
   const getCanvasCoordinates = (clientX: number, clientY: number) => {
@@ -411,6 +413,25 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
                   pointerEvents: 'auto'
                 }}
                 title="拖動調整字體大小"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('控制點被點擊！');
+                  setIsDragging(true);
+                  setDraggedTextBlockId(textBlock.id);
+                  setDragMode('resize');
+                  setInitialFontSize(textBlock.fontSize);
+                  onTextBlockClick(textBlock.id);
+                  
+                  const canvas = canvasRef.current;
+                  if (!canvas) return;
+                  
+                  const coords = getCanvasCoordinates(e.clientX, e.clientY);
+                  setDragOffset({
+                    x: coords.x - (textBlock.x + textBlock.text.length * textBlock.fontSize * 0.8),
+                    y: coords.y - (textBlock.y + textBlock.fontSize)
+                  });
+                }}
               />
             )}
           </div>
