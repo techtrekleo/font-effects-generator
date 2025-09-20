@@ -224,8 +224,6 @@ const App: React.FC = () => {
                 textBlock={textBlocks.find(tb => tb.id === selectedTextBlockId)!}
                 onUpdate={handleTextBlockUpdate}
                 isSelected={true}
-                canvasWidth={activeCanvasSize.width}
-                canvasHeight={activeCanvasSize.height}
               />
             </div>
           )}

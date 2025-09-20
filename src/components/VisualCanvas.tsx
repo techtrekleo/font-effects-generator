@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
 import type { TextBlock } from '../types';
-import { renderComposition } from '../utils/canvas';
 
 interface VisualCanvasProps {
   textBlocks: TextBlock[];
@@ -22,18 +21,87 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
   onTextBlockUpdate
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [outputImage, setOutputImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [draggedTextBlockId, setDraggedTextBlockId] = useState<string | null>(null);
 
-  const updateCanvas = async () => {
-    const dataUrl = await renderComposition(backgroundImage, textBlocks, canvasWidth, canvasHeight);
-    setOutputImage(dataUrl);
-  };
 
+  // 直接在 canvas 上繪製內容
   useEffect(() => {
-    updateCanvas();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // 清除畫布
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 繪製背景圖片
+    if (backgroundImage) {
+      const img = new Image();
+      img.onload = () => {
+        // 重新繪製背景和文字
+        drawCanvasContent();
+      };
+      img.src = backgroundImage;
+    } else {
+      drawCanvasContent();
+    }
+
+    function drawCanvasContent() {
+      if (!ctx) return;
+      
+      // 繪製背景圖片（如果有的話）
+      if (backgroundImage) {
+        const img = new Image();
+        img.onload = () => {
+          if (!canvas) return;
+          const canvasAspect = canvas.width / canvas.height;
+          const imageAspect = img.width / img.height;
+          let sx, sy, sWidth, sHeight;
+
+          if (imageAspect > canvasAspect) {
+            sHeight = img.height;
+            sWidth = sHeight * canvasAspect;
+            sx = (img.width - sWidth) / 2;
+            sy = 0;
+          } else {
+            sWidth = img.width;
+            sHeight = sWidth / canvasAspect;
+            sx = 0;
+            sy = (img.height - sHeight) / 2;
+          }
+          ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+          
+          // 繪製文字
+          drawAllText();
+        };
+        img.src = backgroundImage;
+      } else {
+        // 繪製文字
+        drawAllText();
+      }
+    }
+
+    function drawAllText() {
+      if (!ctx) return;
+      
+      textBlocks.forEach(textBlock => {
+        if (!textBlock.text.trim()) return;
+        
+        const { text, color1, fontSize, x, y } = textBlock;
+        
+        // 這裡需要導入字體相關的邏輯，暫時使用簡化版本
+        ctx.font = `${fontSize}px Arial`;
+        ctx.fillStyle = color1;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        
+        // 簡單的文字繪製
+        ctx.fillText(text, x, y);
+      });
+    }
   }, [textBlocks, backgroundImage, canvasWidth, canvasHeight]);
 
   const getCanvasRect = () => {
@@ -192,7 +260,8 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
         </div>
       )}
       
-      {!outputImage && (
+      {/* 如果沒有任何文字，顯示提示 */}
+      {textBlocks.every(tb => !tb.text.trim()) && (
         <div className="absolute inset-0 flex items-center justify-center text-gray-500 bg-gray-800/50 rounded-lg">
           <div className="text-center">
             <p className="text-xl">您的藝術字體將會顯示在此</p>

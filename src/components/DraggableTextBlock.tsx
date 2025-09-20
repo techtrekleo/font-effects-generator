@@ -7,16 +7,12 @@ interface DraggableTextBlockProps {
   textBlock: TextBlock;
   onUpdate: (updatedTextBlock: TextBlock) => void;
   isSelected: boolean;
-  canvasWidth: number;
-  canvasHeight: number;
 }
 
 export const DraggableTextBlock: React.FC<DraggableTextBlockProps> = ({
   textBlock,
   onUpdate,
-  isSelected,
-  canvasWidth,
-  canvasHeight
+  isSelected
 }) => {
   // 移除未使用的拖動相關代碼，因為我們使用滑塊控制位置
 
@@ -160,32 +156,17 @@ export const DraggableTextBlock: React.FC<DraggableTextBlockProps> = ({
 
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-300">位置</label>
-        <div className="text-xs text-gray-400 bg-gray-800 p-2 rounded">
-          💡 提示：可以直接在右側畫布上拖動文字區塊來調整位置
+        <div className="text-xs text-gray-400 bg-gray-800 p-3 rounded-lg border border-gray-600">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-yellow-400">💡</span>
+            <span className="font-semibold">拖動操作說明</span>
+          </div>
+          <p className="mb-1">• 直接在右側畫布上拖動文字區塊來調整位置</p>
+          <p className="mb-1">• 選中的文字區塊會顯示青色邊框</p>
+          <p>• 拖動時會顯示黃色邊框和提示</p>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-xs text-gray-400">X: {Math.round(textBlock.x)}</label>
-            <input 
-              type="range" 
-              min="0" 
-              max={canvasWidth - 200} 
-              value={textBlock.x} 
-              onChange={e => onUpdate({ ...textBlock, x: Number(e.target.value) })} 
-              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" 
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-400">Y: {Math.round(textBlock.y)}</label>
-            <input 
-              type="range" 
-              min="0" 
-              max={canvasHeight - 100} 
-              value={textBlock.y} 
-              onChange={e => onUpdate({ ...textBlock, y: Number(e.target.value) })} 
-              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" 
-            />
-          </div>
+        <div className="text-xs text-gray-500 bg-gray-900 p-2 rounded">
+          當前位置：X: {Math.round(textBlock.x)}px, Y: {Math.round(textBlock.y)}px
         </div>
       </div>
     </div>
