@@ -8,7 +8,7 @@ import { fonts, effects, canvasSizes, DEFAULT_COLOR_1, DEFAULT_COLOR_2 } from '.
 import type { TextBlock, CanvasSizeId, EffectId, SavedPreset } from './types';
 
 const App: React.FC = () => {
-  const [canvasSizeId, setCanvasSizeId] = useState<CanvasSizeId>('square');
+  const [canvasSizeId, setCanvasSizeId] = useState<CanvasSizeId>('youtube_thumb');
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const [outputImage, setOutputImage] = useState<string | null>(null);
   const [selectedTextBlockId, setSelectedTextBlockId] = useState<string | null>('main');
@@ -18,7 +18,7 @@ const App: React.FC = () => {
 
   const activeCanvasSize = canvasSizes.find(s => s.id === canvasSizeId) || canvasSizes[0];
 
-  // 初始化三個文字區塊
+  // 初始化三個文字區塊 (YT 縮圖 16:9 優化)
   const initialTextBlocks: TextBlock[] = [
     {
       id: 'main',
@@ -29,8 +29,8 @@ const App: React.FC = () => {
       color1: DEFAULT_COLOR_1,
       color2: DEFAULT_COLOR_2,
       fontSize: 120,
-      x: activeCanvasSize.width * 0.5 - 150, // 居中位置
-      y: activeCanvasSize.height * 0.5 - 60, // 居中位置
+      x: activeCanvasSize.width * 0.5 - 200, // 16:9 居中位置
+      y: activeCanvasSize.height * 0.4 - 60, // 16:9 上中位置
     },
     {
       id: 'sub1',
@@ -42,7 +42,7 @@ const App: React.FC = () => {
       color2: DEFAULT_COLOR_2,
       fontSize: 60,
       x: activeCanvasSize.width * 0.1,
-      y: activeCanvasSize.height * 0.5,
+      y: activeCanvasSize.height * 0.6,
     },
     {
       id: 'sub2',
@@ -54,7 +54,7 @@ const App: React.FC = () => {
       color2: DEFAULT_COLOR_2,
       fontSize: 40,
       x: activeCanvasSize.width * 0.1,
-      y: activeCanvasSize.height * 0.7,
+      y: activeCanvasSize.height * 0.8,
     },
   ];
 

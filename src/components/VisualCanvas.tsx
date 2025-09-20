@@ -143,13 +143,15 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
         x: textBlock.x, y: textBlock.y,
         textWidth, textHeight,
         resizeHandleX, resizeHandleY,
+        resizeHandleEndX: resizeHandleX + resizeHandleSize,
+        resizeHandleEndY: resizeHandleY + resizeHandleSize,
         clickX: x, clickY: y,
-        inResizeHandle: x >= resizeHandleX && x <= textBlock.x + textWidth && y >= resizeHandleY && y <= textBlock.y + textHeight,
+        inResizeHandle: x >= resizeHandleX && x <= resizeHandleX + resizeHandleSize && y >= resizeHandleY && y <= resizeHandleY + resizeHandleSize,
         inTextArea: x >= textBlock.x && x <= textBlock.x + textWidth && y >= textBlock.y && y <= textBlock.y + textHeight
       });
       
-      if (x >= resizeHandleX && x <= textBlock.x + textWidth &&
-          y >= resizeHandleY && y <= textBlock.y + textHeight) {
+      if (x >= resizeHandleX && x <= resizeHandleX + resizeHandleSize &&
+          y >= resizeHandleY && y <= resizeHandleY + resizeHandleSize) {
         console.log('Found resize handle!');
         return { textBlock, mode: 'resize' };
       }
