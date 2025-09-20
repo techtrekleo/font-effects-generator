@@ -19,7 +19,6 @@ export const effects = [
   { id: 'bold', name: '粗體' },
   { id: 'shadow', name: '陰影' },
   { id: 'neon', name: '霓虹光' },
-  { id: 'gradient', name: '漸層' },
   { id: 'outline', name: '描邊' },
   { id: 'faux-3d', name: '偽3D' },
   { id: 'glitch', name: '故障感' },

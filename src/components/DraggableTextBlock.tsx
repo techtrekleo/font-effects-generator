@@ -41,12 +41,7 @@ export const DraggableTextBlock: React.FC<DraggableTextBlockProps> = ({
     const effects = new Set(textBlock.effectIds);
     const pickers: React.ReactNode[] = [];
 
-    if (effects.has('gradient')) {
-      pickers.push(
-        <ColorInput key="grad1" label="漸層起始" value={textBlock.color1} onChange={(c) => onUpdate({ ...textBlock, color1: c })} />,
-        <ColorInput key="grad2" label="漸層結束" value={textBlock.color2} onChange={(c) => onUpdate({ ...textBlock, color2: c })} />
-      );
-    } else if (effects.has('neon')) {
+    if (effects.has('neon')) {
       pickers.push(
         <ColorInput key="neon1" label="光暈顏色" value={textBlock.color1} onChange={(c) => onUpdate({ ...textBlock, color1: c })} />
       );
@@ -57,7 +52,7 @@ export const DraggableTextBlock: React.FC<DraggableTextBlockProps> = ({
     }
 
     const hasColor2Effect = effects.has('shadow') || effects.has('outline') || effects.has('faux-3d');
-    if (!effects.has('gradient') && hasColor2Effect) {
+    if (hasColor2Effect) {
       const labels = [];
       if (effects.has('shadow')) labels.push('陰影');
       if (effects.has('outline')) labels.push('描邊');

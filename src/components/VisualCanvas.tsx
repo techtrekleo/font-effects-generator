@@ -197,16 +197,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     }
     
     // 4. 設定填充樣式
-    if (effectIds.includes('gradient')) {
-      // 漸層效果
-      const gradient = ctx.createLinearGradient(x, y, x + getTextWidth(text, fontSize), y + fontSize);
-      gradient.addColorStop(0, color1);
-      gradient.addColorStop(1, color2);
-      ctx.fillStyle = gradient;
-    } else {
-      // 基本填充
-      ctx.fillStyle = color1;
-    }
+    ctx.fillStyle = color1;
     
     // 5. 陰影效果
     if (effectIds.includes('shadow')) {
@@ -222,19 +213,31 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       ctx.shadowBlur = 10;
     }
     
-    // 7. 故障感效果
+    // 7. 故障感效果 - 改進版本
     if (effectIds.includes('glitch')) {
-      // 故障感：隨機偏移和顏色變化
-      const glitchOffset = Math.random() * 4 - 2; // -2 到 2 的隨機偏移
-      const glitchColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+      // 故障感：更明顯的效果
+      const glitchIntensity = 8; // 增加偏移強度
+      const glitchOffsetX = (Math.random() - 0.5) * glitchIntensity;
+      const glitchOffsetY = (Math.random() - 0.5) * glitchIntensity;
       
-      // 繪製故障層
+      // 繪製多層故障效果
       ctx.save();
-      ctx.fillStyle = glitchColor;
-      ctx.fillText(text, x + glitchOffset, y);
+      
+      // 紅色故障層
+      ctx.fillStyle = '#ff0000';
+      ctx.fillText(text, x + glitchOffsetX, y + glitchOffsetY);
+      
+      // 藍色故障層
+      ctx.fillStyle = '#0000ff';
+      ctx.fillText(text, x - glitchOffsetX, y - glitchOffsetY);
+      
+      // 綠色故障層
+      ctx.fillStyle = '#00ff00';
+      ctx.fillText(text, x + glitchOffsetX * 0.5, y - glitchOffsetY * 0.5);
+      
       ctx.restore();
       
-      // 再繪製正常文字
+      // 最後繪製正常文字
       ctx.fillText(text, x, y);
     } else {
       // 繪製文字

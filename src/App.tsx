@@ -124,8 +124,7 @@ const App: React.FC = () => {
         const randomIndex = Math.floor(Math.random() * effectsToSample.length);
         const randomEffect = effectsToSample.splice(randomIndex, 1)[0];
         // Avoid incompatible combinations for better results
-        if (randomEffect.id === 'gradient' && randomEffectIds.includes('neon')) continue;
-        if (randomEffect.id === 'neon' && randomEffectIds.includes('gradient')) continue;
+        // (No gradient effect anymore)
         randomEffectIds.push(randomEffect.id);
     }
     

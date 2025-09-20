@@ -75,12 +75,7 @@ const drawText = (ctx: CanvasRenderingContext2D, config: TextBlock, position?: '
     }
 
     // 2. Fill Style setup
-    if (effects.has('gradient')) {
-        const gradient = ctx.createLinearGradient(0, textY - fontSize / 2, 0, textY + fontSize / 2);
-        gradient.addColorStop(0, color1);
-        gradient.addColorStop(1, color2);
-        ctx.fillStyle = gradient;
-    } else if (effects.has('neon')) {
+    if (effects.has('neon')) {
         ctx.fillStyle = '#FFFFFF'; // Neon text is typically white on a glow
     } else {
         ctx.fillStyle = color1;
@@ -131,7 +126,7 @@ const drawText = (ctx: CanvasRenderingContext2D, config: TextBlock, position?: '
         if (effects.has('neon')) {
             ctx.fillStyle = '#FFFFFF';
             ctx.fillText(text, textX, textY);
-        } else if (!effects.has('gradient')) {
+        } else {
              ctx.fillStyle = color1;
              ctx.fillText(text, textX, textY);
         }
