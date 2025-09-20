@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import type { TextBlock } from '../types';
-import { DebugPanel } from './DebugPanel';
 
 interface VisualCanvasProps {
   textBlocks: TextBlock[];
@@ -28,8 +27,6 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
   const [dragMode, setDragMode] = useState<'move' | 'resize'>('move');
   const [initialFontSize, setInitialFontSize] = useState(0);
   const [animationFrameId, setAnimationFrameId] = useState<number | null>(null);
-  const [showDebugPanel, setShowDebugPanel] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
 
   // 使用 useRef 來緩存背景圖片，避免重複載入
@@ -124,9 +121,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
   const getCanvasRect = () => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
-    const rect = canvas.getBoundingClientRect();
-    console.log('畫布邊界:', rect);
-    return rect;
+    return canvas.getBoundingClientRect();
   };
 
   const getCanvasCoordinates = (clientX: number, clientY: number) => {
@@ -146,14 +141,6 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       y: y * scaleY
     };
     
-    console.log('座標轉換:', {
-      clientX, clientY,
-      rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
-      relative: { x, y },
-      scale: { scaleX, scaleY },
-      result
-    });
-    
     return result;
   };
 
@@ -171,32 +158,17 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       const resizeHandleX = textBlock.x + textWidth - resizeHandleSize;
       const resizeHandleY = textBlock.y + textHeight - resizeHandleSize;
       
-      console.log(`TextBlock ${textBlock.id}:`, {
-        text: textBlock.text,
-        x: textBlock.x, y: textBlock.y,
-        textWidth, textHeight,
-        resizeHandleX, resizeHandleY,
-        resizeHandleEndX: resizeHandleX + resizeHandleSize,
-        resizeHandleEndY: resizeHandleY + resizeHandleSize,
-        clickX: x, clickY: y,
-        inResizeHandle: x >= resizeHandleX && x <= resizeHandleX + resizeHandleSize && y >= resizeHandleY && y <= resizeHandleY + resizeHandleSize,
-        inTextArea: x >= textBlock.x && x <= textBlock.x + textWidth && y >= textBlock.y && y <= textBlock.y + textHeight
-      });
-      
       if (x >= resizeHandleX && x <= resizeHandleX + resizeHandleSize &&
           y >= resizeHandleY && y <= resizeHandleY + resizeHandleSize) {
-        console.log('Found resize handle!');
         return { textBlock, mode: 'resize' };
       }
       
       // 檢查是否在文字區域內（移動模式）
       if (x >= textBlock.x && x <= textBlock.x + textWidth &&
           y >= textBlock.y && y <= textBlock.y + textHeight) {
-        console.log('Found text area!');
         return { textBlock, mode: 'move' };
       }
     }
-    console.log('No text block found');
     return null;
   };
 
@@ -205,12 +177,9 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     if (!canvas) return;
 
     const coords = getCanvasCoordinates(e.clientX, e.clientY);
-    console.log('Mouse down at:', coords);
     const clickedResult = findTextBlockAtPosition(coords.x, coords.y);
-    console.log('Clicked result:', clickedResult);
     
     if (clickedResult) {
-      console.log('Starting drag:', clickedResult.mode);
       setIsDragging(true);
       setDraggedTextBlockId(clickedResult.textBlock.id);
       setDragMode(clickedResult.mode);
@@ -235,8 +204,6 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging || !draggedTextBlockId) return;
-    
-    console.log('拖動中:', { dragMode, draggedTextBlockId, isDragging });
     
     // 取消之前的動畫幀
     if (animationFrameId) {
@@ -269,14 +236,6 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
         newFontSize = Math.max(10, Math.min(500, newFontSize));
         
         // 更新文字區塊字體大小
-        console.log('字體大小調整:', {
-          initialFontSize,
-          delta,
-          scaleFactor,
-          newFontSize: Math.round(newFontSize),
-          textBlockId: textBlock.id
-        });
-        
         onTextBlockUpdate({
           ...textBlock,
           fontSize: Math.round(newFontSize)
@@ -319,22 +278,6 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     setDragOffset({ x: 0, y: 0 });
   };
 
-  // 追蹤滑鼠位置
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      
-      const coords = getCanvasCoordinates(e.clientX, e.clientY);
-      setMousePosition(coords);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, [canvasWidth, canvasHeight]);
-
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
@@ -371,17 +314,6 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
           maxWidth: '100%',
           aspectRatio: `${canvasWidth} / ${canvasHeight}`
         }}
-      />
-      
-      {/* 調試面板 */}
-      <DebugPanel
-        textBlocks={textBlocks}
-        canvasWidth={canvasWidth}
-        canvasHeight={canvasHeight}
-        selectedTextBlockId={selectedTextBlockId}
-        mousePosition={mousePosition}
-        isVisible={showDebugPanel}
-        onToggle={() => setShowDebugPanel(!showDebugPanel)}
       />
       
       {/* 顯示文字區塊邊界和拖動提示 */}
@@ -429,7 +361,6 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
                 onMouseDown={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('控制點被點擊！');
                   setIsDragging(true);
                   setDraggedTextBlockId(textBlock.id);
                   setDragMode('resize');
