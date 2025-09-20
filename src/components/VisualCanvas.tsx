@@ -130,7 +130,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       const textBlock = textBlocks[i];
       if (!textBlock.text.trim()) continue;
       
-      const textWidth = textBlock.text.length * textBlock.fontSize * 0.6;
+      const textWidth = textBlock.text.length * textBlock.fontSize * 0.8;
       const textHeight = textBlock.fontSize;
       
       // 檢查是否在調整大小的控制點上（右下角）
@@ -138,17 +138,30 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       const resizeHandleX = textBlock.x + textWidth - resizeHandleSize;
       const resizeHandleY = textBlock.y + textHeight - resizeHandleSize;
       
+      console.log(`TextBlock ${textBlock.id}:`, {
+        text: textBlock.text,
+        x: textBlock.x, y: textBlock.y,
+        textWidth, textHeight,
+        resizeHandleX, resizeHandleY,
+        clickX: x, clickY: y,
+        inResizeHandle: x >= resizeHandleX && x <= textBlock.x + textWidth && y >= resizeHandleY && y <= textBlock.y + textHeight,
+        inTextArea: x >= textBlock.x && x <= textBlock.x + textWidth && y >= textBlock.y && y <= textBlock.y + textHeight
+      });
+      
       if (x >= resizeHandleX && x <= textBlock.x + textWidth &&
           y >= resizeHandleY && y <= textBlock.y + textHeight) {
+        console.log('Found resize handle!');
         return { textBlock, mode: 'resize' };
       }
       
       // 檢查是否在文字區域內（移動模式）
       if (x >= textBlock.x && x <= textBlock.x + textWidth &&
           y >= textBlock.y && y <= textBlock.y + textHeight) {
+        console.log('Found text area!');
         return { textBlock, mode: 'move' };
       }
     }
+    console.log('No text block found');
     return null;
   };
 
@@ -157,9 +170,12 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     if (!canvas) return;
 
     const coords = getCanvasCoordinates(e.clientX, e.clientY);
+    console.log('Mouse down at:', coords);
     const clickedResult = findTextBlockAtPosition(coords.x, coords.y);
+    console.log('Clicked result:', clickedResult);
     
     if (clickedResult) {
+      console.log('Starting drag:', clickedResult.mode);
       setIsDragging(true);
       setDraggedTextBlockId(clickedResult.textBlock.id);
       setDragMode(clickedResult.mode);
@@ -169,7 +185,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
         // 調整大小模式：記錄初始字體大小
         setInitialFontSize(clickedResult.textBlock.fontSize);
         setDragOffset({
-          x: coords.x - (clickedResult.textBlock.x + clickedResult.textBlock.text.length * clickedResult.textBlock.fontSize * 0.6),
+          x: coords.x - (clickedResult.textBlock.x + clickedResult.textBlock.text.length * clickedResult.textBlock.fontSize * 0.8),
           y: coords.y - (clickedResult.textBlock.y + clickedResult.textBlock.fontSize)
         });
       } else {
@@ -226,7 +242,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
         const newY = coords.y - dragOffset.y;
         
         // 限制在畫布範圍內
-        const textWidth = textBlock.text.length * textBlock.fontSize * 0.6;
+        const textWidth = textBlock.text.length * textBlock.fontSize * 0.8;
         const textHeight = textBlock.fontSize;
         
         const constrainedX = Math.max(0, Math.min(newX, canvasWidth - textWidth));
@@ -267,7 +283,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, dragOffset, draggedTextBlockId]);
+  }, [isDragging, dragOffset, draggedTextBlockId, dragMode, initialFontSize, textBlocks, canvasWidth, canvasHeight, onTextBlockUpdate]);
 
   // 清理動畫幀
   useEffect(() => {
