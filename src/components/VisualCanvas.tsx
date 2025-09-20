@@ -108,6 +108,19 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     }
   }, [drawCanvas]);
 
+  // 計算文字實際寬度
+  const getTextWidth = (text: string, fontSize: number): number => {
+    const canvas = canvasRef.current;
+    if (!canvas) return text.length * fontSize * 0.6; // 備用計算
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return text.length * fontSize * 0.6; // 備用計算
+    
+    ctx.font = `${fontSize}px Arial`;
+    const metrics = ctx.measureText(text);
+    return metrics.width;
+  };
+
   const getCanvasRect = () => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
@@ -150,7 +163,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       const textBlock = textBlocks[i];
       if (!textBlock.text.trim()) continue;
       
-      const textWidth = textBlock.text.length * textBlock.fontSize * 0.8;
+      const textWidth = getTextWidth(textBlock.text, textBlock.fontSize);
       const textHeight = textBlock.fontSize;
       
       // 檢查是否在調整大小的控制點上（右下角）
@@ -239,7 +252,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       
       if (dragMode === 'resize') {
         // 調整大小模式：根據拖動距離計算新的字體大小
-        const textWidth = textBlock.text.length * textBlock.fontSize * 0.8;
+        const textWidth = getTextWidth(textBlock.text, textBlock.fontSize);
         const textHeight = textBlock.fontSize;
         
         // 計算從控制點開始的拖動距離
@@ -274,7 +287,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
         const newY = coords.y - dragOffset.y;
         
         // 限制在畫布範圍內
-        const textWidth = textBlock.text.length * textBlock.fontSize * 0.8;
+        const textWidth = getTextWidth(textBlock.text, textBlock.fontSize);
         const textHeight = textBlock.fontSize;
         
         const constrainedX = Math.max(0, Math.min(newX, canvasWidth - textWidth));
@@ -388,7 +401,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
             style={{
               left: `${(textBlock.x / canvasWidth) * 100}%`,
               top: `${(textBlock.y / canvasHeight) * 100}%`,
-              width: `${Math.max(100, textBlock.text.length * textBlock.fontSize * 0.8) / canvasWidth * 100}%`,
+              width: `${Math.max(100, getTextWidth(textBlock.text, textBlock.fontSize)) / canvasWidth * 100}%`,
               height: `${textBlock.fontSize / canvasHeight * 100}%`,
               minWidth: '20px',
               minHeight: '20px'
@@ -427,8 +440,9 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
                   if (!canvas) return;
                   
                   const coords = getCanvasCoordinates(e.clientX, e.clientY);
+                  const textWidth = getTextWidth(textBlock.text, textBlock.fontSize);
                   setDragOffset({
-                    x: coords.x - (textBlock.x + textBlock.text.length * textBlock.fontSize * 0.8),
+                    x: coords.x - (textBlock.x + textWidth),
                     y: coords.y - (textBlock.y + textBlock.fontSize)
                   });
                 }}
