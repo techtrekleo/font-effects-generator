@@ -27,6 +27,10 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
   const [dragMode, setDragMode] = useState<'move' | 'resize'>('move');
   const [initialFontSize, setInitialFontSize] = useState(0);
   const [animationFrameId, setAnimationFrameId] = useState<number | null>(null);
+  const [alignmentGuides, setAlignmentGuides] = useState<{
+    vertical: number[];
+    horizontal: number[];
+  }>({ vertical: [], horizontal: [] });
 
 
   // 使用 useRef 來緩存背景圖片，避免重複載入
@@ -82,6 +86,32 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
     }
 
+    // 繪製對齊線（在拖動時）
+    if (isDragging && alignmentGuides) {
+      ctx.save();
+      ctx.strokeStyle = '#00ff00'; // 綠色對齊線
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5, 5]); // 虛線樣式
+      
+      // 繪製垂直對齊線
+      alignmentGuides.vertical.forEach(x => {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      });
+      
+      // 繪製水平對齊線
+      alignmentGuides.horizontal.forEach(y => {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      });
+      
+      ctx.restore();
+    }
+
     // 繪製所有文字
     textBlocks.forEach(textBlock => {
       if (!textBlock.text.trim()) return;
@@ -96,7 +126,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       
       ctx.fillText(text, x, y);
     });
-  }, [textBlocks, canvasWidth, canvasHeight]);
+  }, [textBlocks, canvasWidth, canvasHeight, isDragging, alignmentGuides]);
 
   // 當文字區塊或畫布尺寸改變時重新繪製
   useEffect(() => {
@@ -116,6 +146,81 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     ctx.font = `${fontSize}px Arial`;
     const metrics = ctx.measureText(text);
     return metrics.width;
+  };
+
+  // 計算對齊線
+  const calculateAlignmentGuides = (draggedBlock: TextBlock, otherBlocks: TextBlock[]) => {
+    const tolerance = 5; // 對齊容差（像素）
+    const verticalGuides: number[] = [];
+    const horizontalGuides: number[] = [];
+    
+    // 獲取拖動區塊的邊界
+    const draggedWidth = getTextWidth(draggedBlock.text, draggedBlock.fontSize);
+    const draggedHeight = draggedBlock.fontSize;
+    const draggedLeft = draggedBlock.x;
+    const draggedRight = draggedBlock.x + draggedWidth;
+    const draggedTop = draggedBlock.y;
+    const draggedBottom = draggedBlock.y + draggedHeight;
+    const draggedCenterX = draggedBlock.x + draggedWidth / 2;
+    const draggedCenterY = draggedBlock.y + draggedHeight / 2;
+    
+    // 檢查與其他區塊的對齊
+    otherBlocks.forEach(block => {
+      if (block.id === draggedBlock.id || !block.text.trim()) return;
+      
+      const blockWidth = getTextWidth(block.text, block.fontSize);
+      const blockHeight = block.fontSize;
+      const blockLeft = block.x;
+      const blockRight = block.x + blockWidth;
+      const blockTop = block.y;
+      const blockBottom = block.y + blockHeight;
+      const blockCenterX = block.x + blockWidth / 2;
+      const blockCenterY = block.y + blockHeight / 2;
+      
+      // 垂直對齊線
+      if (Math.abs(draggedLeft - blockLeft) <= tolerance) {
+        verticalGuides.push(blockLeft);
+      }
+      if (Math.abs(draggedRight - blockRight) <= tolerance) {
+        verticalGuides.push(blockRight);
+      }
+      if (Math.abs(draggedCenterX - blockCenterX) <= tolerance) {
+        verticalGuides.push(blockCenterX);
+      }
+      if (Math.abs(draggedLeft - blockRight) <= tolerance) {
+        verticalGuides.push(blockRight);
+      }
+      if (Math.abs(draggedRight - blockLeft) <= tolerance) {
+        verticalGuides.push(blockLeft);
+      }
+      
+      // 水平對齊線
+      if (Math.abs(draggedTop - blockTop) <= tolerance) {
+        horizontalGuides.push(blockTop);
+      }
+      if (Math.abs(draggedBottom - blockBottom) <= tolerance) {
+        horizontalGuides.push(blockBottom);
+      }
+      if (Math.abs(draggedCenterY - blockCenterY) <= tolerance) {
+        horizontalGuides.push(blockCenterY);
+      }
+      if (Math.abs(draggedTop - blockBottom) <= tolerance) {
+        horizontalGuides.push(blockBottom);
+      }
+      if (Math.abs(draggedBottom - blockTop) <= tolerance) {
+        horizontalGuides.push(blockTop);
+      }
+    });
+    
+    // 檢查與畫布邊界的對齊
+    if (Math.abs(draggedLeft) <= tolerance) verticalGuides.push(0);
+    if (Math.abs(draggedRight - canvasWidth) <= tolerance) verticalGuides.push(canvasWidth);
+    if (Math.abs(draggedCenterX - canvasWidth / 2) <= tolerance) verticalGuides.push(canvasWidth / 2);
+    if (Math.abs(draggedTop) <= tolerance) horizontalGuides.push(0);
+    if (Math.abs(draggedBottom - canvasHeight) <= tolerance) horizontalGuides.push(canvasHeight);
+    if (Math.abs(draggedCenterY - canvasHeight / 2) <= tolerance) horizontalGuides.push(canvasHeight / 2);
+    
+    return { vertical: verticalGuides, horizontal: horizontalGuides };
   };
 
   const getCanvasRect = () => {
@@ -252,6 +357,17 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
         const constrainedX = Math.max(0, Math.min(newX, canvasWidth - textWidth));
         const constrainedY = Math.max(0, Math.min(newY, canvasHeight - textHeight));
         
+        // 創建臨時文字區塊來計算對齊線
+        const tempTextBlock = {
+          ...textBlock,
+          x: constrainedX,
+          y: constrainedY
+        };
+        
+        // 計算對齊線
+        const guides = calculateAlignmentGuides(tempTextBlock, textBlocks);
+        setAlignmentGuides(guides);
+        
         // 更新文字區塊位置
         onTextBlockUpdate({
           ...textBlock,
@@ -276,6 +392,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     setDragMode('move');
     setInitialFontSize(0);
     setDragOffset({ x: 0, y: 0 });
+    setAlignmentGuides({ vertical: [], horizontal: [] }); // 清除對齊線
   };
 
   useEffect(() => {
