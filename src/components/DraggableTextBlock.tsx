@@ -143,14 +143,30 @@ export const DraggableTextBlock: React.FC<DraggableTextBlockProps> = ({
       <div className="space-y-3">
         <label className="block text-sm font-semibold text-gray-300">字體大小</label>
         <div className="bg-gray-800 p-3 rounded-lg border border-gray-600">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <span className="text-gray-300 font-medium">當前大小</span>
             <span className="text-cyan-400 font-bold text-lg">{textBlock.fontSize}px</span>
           </div>
-          <div className="mt-2 text-xs text-gray-400">
-            💡 提示：直接在右側畫布上拖動右下角藍色控制點來調整字體大小
+          
+          {/* 手動輸入 */}
+          <div className="mb-3">
+            <label className="block text-xs text-gray-400 mb-1">手動輸入字體大小</label>
+            <input
+              type="number"
+              min="10"
+              max="500"
+              value={textBlock.fontSize}
+              onChange={(e) => onUpdate({ ...textBlock, fontSize: Number(e.target.value) })}
+              className="w-full p-2 bg-gray-900 border border-gray-700 rounded text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="輸入字體大小 (10-500px)"
+            />
           </div>
-          <div className="mt-2 flex gap-2">
+          
+          <div className="text-xs text-gray-400 mb-2">
+            💡 提示：可以直接輸入數字，或在右側畫布上拖動右下角藍色控制點
+          </div>
+          
+          <div className="flex gap-2">
             <button
               onClick={() => onUpdate({ ...textBlock, fontSize: 120 })}
               className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition"
@@ -162,6 +178,12 @@ export const DraggableTextBlock: React.FC<DraggableTextBlockProps> = ({
               className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition"
             >
               重置為 60px
+            </button>
+            <button
+              onClick={() => onUpdate({ ...textBlock, fontSize: 400 })}
+              className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded transition"
+            >
+              大標題 400px
             </button>
           </div>
         </div>
