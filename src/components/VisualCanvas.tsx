@@ -125,15 +125,16 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
   };
 
   const findTextBlockAtPosition = (x: number, y: number): { textBlock: TextBlock; mode: 'move' | 'resize' } | null => {
-    for (const textBlock of textBlocks) {
+    // 從後往前檢查，優先選擇最上層的文字區塊
+    for (let i = textBlocks.length - 1; i >= 0; i--) {
+      const textBlock = textBlocks[i];
       if (!textBlock.text.trim()) continue;
       
-      // 簡單的點擊檢測 - 檢查是否在文字區域附近
-      const textWidth = textBlock.text.length * textBlock.fontSize * 0.6; // 估算文字寬度
+      const textWidth = textBlock.text.length * textBlock.fontSize * 0.6;
       const textHeight = textBlock.fontSize;
       
       // 檢查是否在調整大小的控制點上（右下角）
-      const resizeHandleSize = 20;
+      const resizeHandleSize = 16; // 控制點大小
       const resizeHandleX = textBlock.x + textWidth - resizeHandleSize;
       const resizeHandleY = textBlock.y + textHeight - resizeHandleSize;
       
@@ -297,6 +298,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
         
         const isSelected = selectedTextBlockId === textBlock.id;
         const isDragged = draggedTextBlockId === textBlock.id;
+        const isResizing = isDragged && dragMode === 'resize';
         
         return (
           <div
@@ -313,12 +315,26 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
               minHeight: '20px'
             }}
           >
+            {/* 文字區塊標籤 */}
             <div className={`absolute -top-6 left-0 text-xs font-semibold transition-colors ${
               isDragged ? 'text-yellow-400' : 'text-cyan-400'
             }`}>
               {textBlock.type === 'main' ? '主標題' : textBlock.type === 'sub1' ? '副標題一' : '副標題二'}
-              {isDragged && ' (拖動中)'}
+              {isDragged && (isResizing ? ' (調整大小中)' : ' (拖動中)')}
             </div>
+            
+            {/* 調整大小的控制點 */}
+            {isSelected && (
+              <div
+                className="absolute w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nw-resize shadow-lg hover:bg-blue-600 transition-colors"
+                style={{
+                  right: '-8px',
+                  bottom: '-8px',
+                  transform: 'translate(50%, 50%)'
+                }}
+                title="拖動調整字體大小"
+              />
+            )}
           </div>
         );
       })}
@@ -326,7 +342,11 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       {/* 拖動提示 */}
       {isDragging && (
         <div className="absolute top-4 left-4 bg-yellow-500/90 text-black px-3 py-2 rounded-lg text-sm font-semibold">
-          🖱️ 拖動中... 放開滑鼠完成移動
+          {dragMode === 'resize' ? (
+            <>🔧 調整字體大小中... 放開滑鼠完成調整</>
+          ) : (
+            <>🖱️ 拖動中... 放開滑鼠完成移動</>
+          )}
         </div>
       )}
       
@@ -336,7 +356,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
           <div className="text-center">
             <p className="text-xl">您的藝術字體將會顯示在此</p>
             <p className="mt-2">請在左側輸入文字以開始</p>
-            <p className="mt-1 text-sm text-gray-400">💡 提示：可以直接在畫布上拖動文字區塊</p>
+            <p className="mt-1 text-sm text-gray-400">💡 提示：拖動文字區塊移動位置，拖動右下角藍點調整字體大小</p>
           </div>
         </div>
       )}
