@@ -141,15 +141,16 @@ export const DraggableTextBlock: React.FC<DraggableTextBlockProps> = ({
       </div>
 
       <div className="space-y-3">
-        <label className="block text-sm font-semibold text-gray-300">字體大小: {textBlock.fontSize}px</label>
-        <input 
-          type="range" 
-          min="10" 
-          max="400" 
-          value={textBlock.fontSize} 
-          onChange={e => onUpdate({ ...textBlock, fontSize: Number(e.target.value) })} 
-          className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" 
-        />
+        <label className="block text-sm font-semibold text-gray-300">字體大小</label>
+        <div className="bg-gray-800 p-3 rounded-lg border border-gray-600">
+          <div className="flex items-center justify-between">
+            <span className="text-gray-300 font-medium">當前大小</span>
+            <span className="text-cyan-400 font-bold text-lg">{textBlock.fontSize}px</span>
+          </div>
+          <div className="mt-2 text-xs text-gray-400">
+            💡 提示：直接在右側畫布上拖動右下角藍色控制點來調整字體大小
+          </div>
+        </div>
       </div>
 
       <div className="space-y-3">{renderColorPickers()}</div>
