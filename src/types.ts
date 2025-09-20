@@ -17,3 +17,13 @@ export interface TextBlock {
     id: string; // 新增：唯一識別碼
     type: 'main' | 'sub1' | 'sub2'; // 新增：文字區塊類型
 }
+
+export interface SavedPreset {
+    id: string;
+    name: string;
+    createdAt: string;
+    canvasSizeId: CanvasSizeId;
+    backgroundImage: string | null;
+    textBlocks: TextBlock[];
+    selectedTextBlockId: string | null;
+}

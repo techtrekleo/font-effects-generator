@@ -123,7 +123,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     };
   };
 
-  const findTextBlockAtPosition = (x: number, y: number): TextBlock | null => {
+  const findTextBlockAtPosition = (x: number, y: number): { textBlock: TextBlock; mode: 'move' | 'resize' } | null => {
     for (const textBlock of textBlocks) {
       if (!textBlock.text.trim()) continue;
       
@@ -131,9 +131,20 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       const textWidth = textBlock.text.length * textBlock.fontSize * 0.6; // 估算文字寬度
       const textHeight = textBlock.fontSize;
       
+      // 檢查是否在調整大小的控制點上（右下角）
+      const resizeHandleSize = 20;
+      const resizeHandleX = textBlock.x + textWidth - resizeHandleSize;
+      const resizeHandleY = textBlock.y + textHeight - resizeHandleSize;
+      
+      if (x >= resizeHandleX && x <= textBlock.x + textWidth &&
+          y >= resizeHandleY && y <= textBlock.y + textHeight) {
+        return { textBlock, mode: 'resize' };
+      }
+      
+      // 檢查是否在文字區域內（移動模式）
       if (x >= textBlock.x && x <= textBlock.x + textWidth &&
           y >= textBlock.y && y <= textBlock.y + textHeight) {
-        return textBlock;
+        return { textBlock, mode: 'move' };
       }
     }
     return null;
@@ -144,17 +155,17 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     if (!canvas) return;
 
     const coords = getCanvasCoordinates(e.clientX, e.clientY);
-    const clickedTextBlock = findTextBlockAtPosition(coords.x, coords.y);
+    const clickedResult = findTextBlockAtPosition(coords.x, coords.y);
     
-    if (clickedTextBlock) {
+    if (clickedResult) {
       setIsDragging(true);
-      setDraggedTextBlockId(clickedTextBlock.id);
-      onTextBlockClick(clickedTextBlock.id);
+      setDraggedTextBlockId(clickedResult.textBlock.id);
+      onTextBlockClick(clickedResult.textBlock.id);
       
       // 計算拖動偏移量
       setDragOffset({
-        x: coords.x - clickedTextBlock.x,
-        y: coords.y - clickedTextBlock.y
+        x: coords.x - clickedResult.textBlock.x,
+        y: coords.y - clickedResult.textBlock.y
       });
     }
   };

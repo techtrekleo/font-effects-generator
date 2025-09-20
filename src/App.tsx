@@ -2,9 +2,10 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { DownloadIcon, ClearIcon, InspirationIcon, PhotoIcon } from './components/Icons';
 import { DraggableTextBlock } from './components/DraggableTextBlock';
 import { VisualCanvas } from './components/VisualCanvas';
+import { PresetManager } from './components/PresetManager';
 import { renderComposition, getRandomItem, getRandomHexColor } from './utils/canvas';
 import { fonts, effects, canvasSizes, DEFAULT_COLOR_1, DEFAULT_COLOR_2 } from './constants';
-import type { TextBlock, CanvasSizeId, EffectId } from './types';
+import type { TextBlock, CanvasSizeId, EffectId, SavedPreset } from './types';
 
 const App: React.FC = () => {
   const [canvasSizeId, setCanvasSizeId] = useState<CanvasSizeId>('square');
@@ -145,6 +146,13 @@ const App: React.FC = () => {
     }));
   };
 
+  const handleLoadPreset = (preset: SavedPreset) => {
+    setCanvasSizeId(preset.canvasSizeId);
+    setBackgroundImage(preset.backgroundImage);
+    setTextBlocks(preset.textBlocks);
+    setSelectedTextBlockId(preset.selectedTextBlockId);
+  };
+
   const isPristine = 
     JSON.stringify(textBlocks) === JSON.stringify(initialTextBlocks) &&
     backgroundImage === null &&
@@ -227,6 +235,20 @@ const App: React.FC = () => {
               />
             </div>
           )}
+
+          {/* 預設管理 */}
+          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-semibold text-gray-300">4. 預設管理</h3>
+              <PresetManager
+                textBlocks={textBlocks}
+                backgroundImage={backgroundImage}
+                canvasSizeId={canvasSizeId}
+                selectedTextBlockId={selectedTextBlockId}
+                onLoadPreset={handleLoadPreset}
+              />
+            </div>
+          </div>
 
           {/* 操作按鈕 */}
           <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
