@@ -171,13 +171,25 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       ctx.fillText(text, x, y);
       ctx.restore();
     } else if (effectIds.includes('outline')) {
-      // 描邊效果
+      // 描邊效果 - 改進版本
       ctx.save();
+      
+      // 先繪製描邊（多個方向）
       ctx.strokeStyle = color2;
-      ctx.lineWidth = 2;
-      ctx.strokeText(text, x, y);
+      ctx.lineWidth = 4;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      
+      // 繪製多個方向的描邊以獲得更好的效果
+      ctx.strokeText(text, x - 1, y - 1);
+      ctx.strokeText(text, x + 1, y - 1);
+      ctx.strokeText(text, x - 1, y + 1);
+      ctx.strokeText(text, x + 1, y + 1);
+      
+      // 再繪製填充文字
       ctx.fillStyle = color1;
       ctx.fillText(text, x, y);
+      
       ctx.restore();
     } else if (effectIds.includes('gradient')) {
       // 漸層效果
