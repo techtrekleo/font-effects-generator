@@ -23,20 +23,20 @@ const App: React.FC = () => {
     {
       id: 'main',
       type: 'main',
-      text: '主標題',
-      fontId: 'noto-sans-tc-900',
+      text: '口袋裡的貓',
+      fontId: 'jason-handwriting-1',
       effectIds: ['shadow'],
       color1: DEFAULT_COLOR_1,
       color2: DEFAULT_COLOR_2,
       fontSize: 120,
-      x: activeCanvasSize.width * 0.1,
-      y: activeCanvasSize.height * 0.3,
+      x: activeCanvasSize.width * 0.5 - 150, // 居中位置
+      y: activeCanvasSize.height * 0.5 - 60, // 居中位置
     },
     {
       id: 'sub1',
       type: 'sub1',
-      text: '副標題一',
-      fontId: 'taipei-sans-700',
+      text: 'Sonic Pulse',
+      fontId: 'jason-handwriting-1',
       effectIds: [],
       color1: DEFAULT_COLOR_1,
       color2: DEFAULT_COLOR_2,
@@ -47,8 +47,8 @@ const App: React.FC = () => {
     {
       id: 'sub2',
       type: 'sub2',
-      text: '副標題二',
-      fontId: 'noto-sans-tc-500',
+      text: '',
+      fontId: 'jason-handwriting-1',
       effectIds: [],
       color1: DEFAULT_COLOR_1,
       color2: DEFAULT_COLOR_2,

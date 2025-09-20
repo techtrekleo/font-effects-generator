@@ -309,7 +309,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
             style={{
               left: `${(textBlock.x / canvasWidth) * 100}%`,
               top: `${(textBlock.y / canvasHeight) * 100}%`,
-              width: `${Math.max(100, textBlock.text.length * textBlock.fontSize * 0.6) / canvasWidth * 100}%`,
+              width: `${Math.max(100, textBlock.text.length * textBlock.fontSize * 0.8) / canvasWidth * 100}%`,
               height: `${textBlock.fontSize / canvasHeight * 100}%`,
               minWidth: '20px',
               minHeight: '20px'
@@ -330,7 +330,8 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
                 style={{
                   right: '-8px',
                   bottom: '-8px',
-                  transform: 'translate(50%, 50%)'
+                  transform: 'translate(50%, 50%)',
+                  pointerEvents: 'auto'
                 }}
                 title="拖動調整字體大小"
               />
