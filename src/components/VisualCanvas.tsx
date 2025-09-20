@@ -118,13 +118,28 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     const rect = getCanvasRect();
     if (!rect) return { x: 0, y: 0 };
     
+    // 計算相對於畫布的座標
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    
+    // 轉換到畫布內部座標系統
     const scaleX = canvasWidth / rect.width;
     const scaleY = canvasHeight / rect.height;
     
-    return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY
+    const result = {
+      x: x * scaleX,
+      y: y * scaleY
     };
+    
+    console.log('座標轉換:', {
+      clientX, clientY,
+      rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+      relative: { x, y },
+      scale: { scaleX, scaleY },
+      result
+    });
+    
+    return result;
   };
 
   const findTextBlockAtPosition = (x: number, y: number): { textBlock: TextBlock; mode: 'move' | 'resize' } | null => {
