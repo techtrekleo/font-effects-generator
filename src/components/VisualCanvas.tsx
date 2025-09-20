@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import type { TextBlock } from '../types';
+import { fonts } from '../constants';
 
 interface VisualCanvasProps {
   textBlocks: TextBlock[];
@@ -114,17 +115,7 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
 
     // 繪製所有文字
     textBlocks.forEach(textBlock => {
-      if (!textBlock.text.trim()) return;
-      
-      const { text, color1, fontSize, x, y } = textBlock;
-      
-      // 使用簡化的字體繪製
-      ctx.font = `${fontSize}px Arial`;
-      ctx.fillStyle = color1;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      
-      ctx.fillText(text, x, y);
+      drawTextWithEffects(ctx, textBlock);
     });
   }, [textBlocks, canvasWidth, canvasHeight, isDragging, alignmentGuides]);
 
@@ -146,6 +137,70 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     ctx.font = `${fontSize}px Arial`;
     const metrics = ctx.measureText(text);
     return metrics.width;
+  };
+
+  // 根據 TextBlock 設定繪製文字
+  const drawTextWithEffects = (ctx: CanvasRenderingContext2D, textBlock: TextBlock) => {
+    if (!textBlock.text.trim()) return;
+    
+    const { text, fontId, effectIds, color1, color2, fontSize, x, y } = textBlock;
+    
+    // 獲取字體設定
+    const font = fonts.find(f => f.id === fontId);
+    const fontFamily = font ? font.family : 'Arial';
+    const fontWeight = font ? font.weight : 400;
+    
+    // 設定字體
+    ctx.font = `${fontWeight} ${fontSize}px "${fontFamily}"`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    
+    // 應用特效
+    if (effectIds.includes('bold')) {
+      ctx.font = `bold ${fontSize}px "${fontFamily}"`;
+    }
+    
+    if (effectIds.includes('shadow')) {
+      // 陰影效果
+      ctx.save();
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      ctx.fillStyle = color1;
+      ctx.fillText(text, x, y);
+      ctx.restore();
+    } else if (effectIds.includes('outline')) {
+      // 描邊效果
+      ctx.save();
+      ctx.strokeStyle = color2;
+      ctx.lineWidth = 2;
+      ctx.strokeText(text, x, y);
+      ctx.fillStyle = color1;
+      ctx.fillText(text, x, y);
+      ctx.restore();
+    } else if (effectIds.includes('gradient')) {
+      // 漸層效果
+      ctx.save();
+      const gradient = ctx.createLinearGradient(x, y, x + getTextWidth(text, fontSize), y + fontSize);
+      gradient.addColorStop(0, color1);
+      gradient.addColorStop(1, color2);
+      ctx.fillStyle = gradient;
+      ctx.fillText(text, x, y);
+      ctx.restore();
+    } else if (effectIds.includes('neon')) {
+      // 霓虹光效果
+      ctx.save();
+      ctx.shadowColor = color1;
+      ctx.shadowBlur = 10;
+      ctx.fillStyle = color1;
+      ctx.fillText(text, x, y);
+      ctx.restore();
+    } else {
+      // 基本填充
+      ctx.fillStyle = color1;
+      ctx.fillText(text, x, y);
+    }
   };
 
   // 計算對齊線
