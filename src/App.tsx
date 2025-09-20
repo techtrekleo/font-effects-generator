@@ -258,6 +258,7 @@ const App: React.FC = () => {
               canvasHeight={activeCanvasSize.height}
               selectedTextBlockId={selectedTextBlockId}
               onTextBlockClick={setSelectedTextBlockId}
+              onTextBlockUpdate={handleTextBlockUpdate}
             />
           </div>
         </div>

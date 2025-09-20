@@ -160,6 +160,9 @@ export const DraggableTextBlock: React.FC<DraggableTextBlockProps> = ({
 
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-300">位置</label>
+        <div className="text-xs text-gray-400 bg-gray-800 p-2 rounded">
+          💡 提示：可以直接在右側畫布上拖動文字區塊來調整位置
+        </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
             <label className="block text-xs text-gray-400">X: {Math.round(textBlock.x)}</label>
