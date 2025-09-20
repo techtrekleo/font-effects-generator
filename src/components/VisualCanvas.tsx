@@ -221,6 +221,8 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging || !draggedTextBlockId) return;
     
+    console.log('拖動中:', { dragMode, draggedTextBlockId, isDragging });
+    
     // 取消之前的動畫幀
     if (animationFrameId) {
       cancelAnimationFrame(animationFrameId);
@@ -252,6 +254,14 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
         newFontSize = Math.max(10, Math.min(400, newFontSize));
         
         // 更新文字區塊字體大小
+        console.log('字體大小調整:', {
+          initialFontSize,
+          delta,
+          scaleFactor,
+          newFontSize: Math.round(newFontSize),
+          textBlockId: textBlock.id
+        });
+        
         onTextBlockUpdate({
           ...textBlock,
           fontSize: Math.round(newFontSize)
