@@ -155,64 +155,93 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     
-    // 應用特效
+    // 應用特效 - 支援組合使用
+    ctx.save();
+    
+    // 1. 粗體效果
     if (effectIds.includes('bold')) {
       ctx.font = `bold ${fontSize}px "${fontFamily}"`;
     }
     
-    if (effectIds.includes('shadow')) {
-      // 陰影效果
-      ctx.save();
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-      ctx.shadowBlur = 4;
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 2;
+    // 2. 3D效果
+    if (effectIds.includes('faux-3d')) {
+      // 3D效果：多層陰影
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
       ctx.fillStyle = color1;
       ctx.fillText(text, x, y);
-      ctx.restore();
-    } else if (effectIds.includes('outline')) {
-      // 描邊效果 - 改進版本
-      ctx.save();
       
-      // 先繪製描邊（多個方向）
+      ctx.shadowOffsetX = 6;
+      ctx.shadowOffsetY = 6;
+      ctx.fillText(text, x, y);
+      
+      ctx.shadowOffsetX = 9;
+      ctx.shadowOffsetY = 9;
+      ctx.fillText(text, x, y);
+    }
+    
+    // 3. 描邊效果
+    if (effectIds.includes('outline')) {
       ctx.strokeStyle = color2;
       ctx.lineWidth = 4;
       ctx.lineJoin = 'round';
       ctx.lineCap = 'round';
       
-      // 繪製多個方向的描邊以獲得更好的效果
+      // 多方向描邊
       ctx.strokeText(text, x - 1, y - 1);
       ctx.strokeText(text, x + 1, y - 1);
       ctx.strokeText(text, x - 1, y + 1);
       ctx.strokeText(text, x + 1, y + 1);
-      
-      // 再繪製填充文字
-      ctx.fillStyle = color1;
-      ctx.fillText(text, x, y);
-      
-      ctx.restore();
-    } else if (effectIds.includes('gradient')) {
+    }
+    
+    // 4. 設定填充樣式
+    if (effectIds.includes('gradient')) {
       // 漸層效果
-      ctx.save();
       const gradient = ctx.createLinearGradient(x, y, x + getTextWidth(text, fontSize), y + fontSize);
       gradient.addColorStop(0, color1);
       gradient.addColorStop(1, color2);
       ctx.fillStyle = gradient;
-      ctx.fillText(text, x, y);
-      ctx.restore();
-    } else if (effectIds.includes('neon')) {
-      // 霓虹光效果
-      ctx.save();
-      ctx.shadowColor = color1;
-      ctx.shadowBlur = 10;
-      ctx.fillStyle = color1;
-      ctx.fillText(text, x, y);
-      ctx.restore();
     } else {
       // 基本填充
       ctx.fillStyle = color1;
+    }
+    
+    // 5. 陰影效果
+    if (effectIds.includes('shadow')) {
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+    }
+    
+    // 6. 霓虹光效果
+    if (effectIds.includes('neon')) {
+      ctx.shadowColor = color1;
+      ctx.shadowBlur = 10;
+    }
+    
+    // 7. 故障感效果
+    if (effectIds.includes('glitch')) {
+      // 故障感：隨機偏移和顏色變化
+      const glitchOffset = Math.random() * 4 - 2; // -2 到 2 的隨機偏移
+      const glitchColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+      
+      // 繪製故障層
+      ctx.save();
+      ctx.fillStyle = glitchColor;
+      ctx.fillText(text, x + glitchOffset, y);
+      ctx.restore();
+      
+      // 再繪製正常文字
+      ctx.fillText(text, x, y);
+    } else {
+      // 繪製文字
       ctx.fillText(text, x, y);
     }
+    
+    ctx.restore();
   };
 
   // 計算對齊線
