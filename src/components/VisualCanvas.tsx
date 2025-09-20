@@ -199,14 +199,18 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
       
       if (dragMode === 'resize') {
         // 調整大小模式：根據拖動距離計算新的字體大小
-        const deltaX = coords.x - (textBlock.x + textBlock.text.length * textBlock.fontSize * 0.6);
-        const deltaY = coords.y - (textBlock.y + textBlock.fontSize);
+        const textWidth = textBlock.text.length * textBlock.fontSize * 0.8;
+        const textHeight = textBlock.fontSize;
         
-        // 使用較大的變化量來調整字體大小
-        const delta = Math.max(Math.abs(deltaX), Math.abs(deltaY));
-        const scaleFactor = delta / 50; // 每50像素變化對應1倍字體大小變化
+        // 計算從控制點開始的拖動距離
+        const deltaX = coords.x - (textBlock.x + textWidth);
+        const deltaY = coords.y - (textBlock.y + textHeight);
         
-        let newFontSize = initialFontSize + (deltaX + deltaY) * scaleFactor;
+        // 使用對角線距離來調整字體大小
+        const delta = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const scaleFactor = 0.5; // 調整靈敏度
+        
+        let newFontSize = initialFontSize + delta * scaleFactor;
         
         // 限制字體大小範圍
         newFontSize = Math.max(10, Math.min(400, newFontSize));

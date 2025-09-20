@@ -145,7 +145,7 @@ export const DraggableTextBlock: React.FC<DraggableTextBlockProps> = ({
         <input 
           type="range" 
           min="10" 
-          max="200" 
+          max="400" 
           value={textBlock.fontSize} 
           onChange={e => onUpdate({ ...textBlock, fontSize: Number(e.target.value) })} 
           className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" 
