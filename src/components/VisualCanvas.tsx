@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import type { TextBlock } from '../types';
+import { DebugPanel } from './DebugPanel';
 
 interface VisualCanvasProps {
   textBlocks: TextBlock[];
@@ -27,6 +28,8 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
   const [dragMode, setDragMode] = useState<'move' | 'resize'>('move');
   const [initialFontSize, setInitialFontSize] = useState(0);
   const [animationFrameId, setAnimationFrameId] = useState<number | null>(null);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
 
   // 使用 useRef 來緩存背景圖片，避免重複載入
@@ -276,6 +279,22 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
     setDragOffset({ x: 0, y: 0 });
   };
 
+  // 追蹤滑鼠位置
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const coords = getCanvasCoordinates(e.clientX, e.clientY);
+      setMousePosition(coords);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [canvasWidth, canvasHeight]);
+
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
@@ -312,6 +331,17 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
           maxWidth: '100%',
           aspectRatio: `${canvasWidth} / ${canvasHeight}`
         }}
+      />
+      
+      {/* 調試面板 */}
+      <DebugPanel
+        textBlocks={textBlocks}
+        canvasWidth={canvasWidth}
+        canvasHeight={canvasHeight}
+        selectedTextBlockId={selectedTextBlockId}
+        mousePosition={mousePosition}
+        isVisible={showDebugPanel}
+        onToggle={() => setShowDebugPanel(!showDebugPanel)}
       />
       
       {/* 顯示文字區塊邊界和拖動提示 */}
