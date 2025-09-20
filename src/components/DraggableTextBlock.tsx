@@ -150,6 +150,20 @@ export const DraggableTextBlock: React.FC<DraggableTextBlockProps> = ({
           <div className="mt-2 text-xs text-gray-400">
             💡 提示：直接在右側畫布上拖動右下角藍色控制點來調整字體大小
           </div>
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={() => onUpdate({ ...textBlock, fontSize: 120 })}
+              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition"
+            >
+              重置為 120px
+            </button>
+            <button
+              onClick={() => onUpdate({ ...textBlock, fontSize: 60 })}
+              className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition"
+            >
+              重置為 60px
+            </button>
+          </div>
         </div>
       </div>
 

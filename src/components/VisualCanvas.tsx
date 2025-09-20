@@ -248,12 +248,12 @@ export const VisualCanvas: React.FC<VisualCanvasProps> = ({
         
         // 使用對角線距離來調整字體大小
         const delta = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        const scaleFactor = 0.5; // 調整靈敏度
+        const scaleFactor = 0.2; // 降低靈敏度，更容易控制
         
         let newFontSize = initialFontSize + delta * scaleFactor;
         
-        // 限制字體大小範圍
-        newFontSize = Math.max(10, Math.min(400, newFontSize));
+        // 限制字體大小範圍（更嚴格的限制，避免超出畫面）
+        newFontSize = Math.max(20, Math.min(150, newFontSize));
         
         // 更新文字區塊字體大小
         console.log('字體大小調整:', {
