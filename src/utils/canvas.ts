@@ -22,10 +22,10 @@ const drawImageToCanvas = (ctx: CanvasRenderingContext2D, image: HTMLImageElemen
     ctx.drawImage(image, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
 }
 
-const drawText = (ctx: CanvasRenderingContext2D, config: TextBlock, position: 'center' | 'corner') => {
+const drawText = (ctx: CanvasRenderingContext2D, config: TextBlock, position?: 'center' | 'corner') => {
     if (!config.text.trim()) return;
 
-    const { text, fontId, effectIds, color1, color2, fontSize } = config;
+    const { text, fontId, effectIds, color1, color2, fontSize, x, y } = config;
     const fontObject = fonts.find(f => f.id === fontId);
     if (!fontObject) return;
 
@@ -41,18 +41,24 @@ const drawText = (ctx: CanvasRenderingContext2D, config: TextBlock, position: 'c
     const fontWeight = effects.has('bold') ? '900' : fontObject.weight;
     ctx.font = `${fontWeight} ${fontSize}px "${fontObject.family}"`;
     
-    let x, y;
-    const PADDING_X = ctx.canvas.width * 0.05; // 5% horizontal padding
-    const PADDING_Y = ctx.canvas.height * 0.05; // 5% vertical padding
-
-    if (position === 'center') {
-        x = ctx.canvas.width / 2;
-        y = ctx.canvas.height / 2;
+    let textX, textY;
+    
+    // 使用新的座標系統
+    if (x !== undefined && y !== undefined) {
+        textX = x;
+        textY = y;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+    } else if (position === 'center') {
+        textX = ctx.canvas.width / 2;
+        textY = ctx.canvas.height / 2;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
     } else { // corner
-        x = PADDING_X;
-        y = ctx.canvas.height - PADDING_Y;
+        const PADDING_X = ctx.canvas.width * 0.05;
+        const PADDING_Y = ctx.canvas.height * 0.05;
+        textX = PADDING_X;
+        textY = ctx.canvas.height - PADDING_Y;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
     }
@@ -64,13 +70,13 @@ const drawText = (ctx: CanvasRenderingContext2D, config: TextBlock, position: 'c
         const depth = Math.max(1, Math.floor(fontSize / 30));
         ctx.fillStyle = color2;
         for (let i = 1; i <= depth; i++) {
-            ctx.fillText(text, x + i, y + i);
+            ctx.fillText(text, textX + i, textY + i);
         }
     }
 
     // 2. Fill Style setup
     if (effects.has('gradient')) {
-        const gradient = ctx.createLinearGradient(0, y - fontSize / 2, 0, y + fontSize / 2);
+        const gradient = ctx.createLinearGradient(0, textY - fontSize / 2, 0, textY + fontSize / 2);
         gradient.addColorStop(0, color1);
         gradient.addColorStop(1, color2);
         ctx.fillStyle = gradient;
@@ -97,16 +103,16 @@ const drawText = (ctx: CanvasRenderingContext2D, config: TextBlock, position: 'c
         ctx.lineWidth = Math.max(2, fontSize / 20);
         ctx.lineJoin = 'round';
         ctx.miterLimit = 2;
-        ctx.strokeText(text, x, y);
+        ctx.strokeText(text, textX, textY);
     }
     
     // 5. Main text fill
-    ctx.fillText(text, x, y);
+    ctx.fillText(text, textX, textY);
 
     // 5.1. Extra Neon pass for more intensity
     if (effects.has('neon')) {
         ctx.shadowBlur = 30; // Stronger glow
-        ctx.fillText(text, x, y);
+        ctx.fillText(text, textX, textY);
     }
     
     // Reset shadow before glitch effect
@@ -118,16 +124,16 @@ const drawText = (ctx: CanvasRenderingContext2D, config: TextBlock, position: 'c
     // 6. Glitch effect (drawn last, on top)
     if (effects.has('glitch')) {
         ctx.fillStyle = 'rgba(255, 0, 255, 0.5)'; // Magenta
-        ctx.fillText(text, x - 5, y);
+        ctx.fillText(text, textX - 5, textY);
         ctx.fillStyle = 'rgba(0, 255, 255, 0.5)'; // Cyan
-        ctx.fillText(text, x + 5, y);
+        ctx.fillText(text, textX + 5, textY);
         // We draw the original text one more time if there's no solid fill, to ensure it's visible
         if (effects.has('neon')) {
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillText(text, x, y);
+            ctx.fillText(text, textX, textY);
         } else if (!effects.has('gradient')) {
              ctx.fillStyle = color1;
-             ctx.fillText(text, x, y);
+             ctx.fillText(text, textX, textY);
         }
     }
     
@@ -140,8 +146,7 @@ const drawText = (ctx: CanvasRenderingContext2D, config: TextBlock, position: 'c
 
 export const renderComposition = (
     backgroundImage: string | null,
-    centerConfig: TextBlock,
-    cornerConfig: TextBlock,
+    textBlocks: TextBlock[],
     width: number,
     height: number
 ): Promise<string> => {
@@ -156,8 +161,9 @@ export const renderComposition = (
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const drawAllText = () => {
-            drawText(ctx, centerConfig, 'center');
-            drawText(ctx, cornerConfig, 'corner');
+            textBlocks.forEach(textBlock => {
+                drawText(ctx, textBlock);
+            });
             resolve(canvas.toDataURL('image/png'));
         };
 

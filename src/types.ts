@@ -12,4 +12,8 @@ export interface TextBlock {
     color1: string;
     color2: string;
     fontSize: number;
+    x: number; // 新增：X 座標
+    y: number; // 新增：Y 座標
+    id: string; // 新增：唯一識別碼
+    type: 'main' | 'sub1' | 'sub2'; // 新增：文字區塊類型
 }
