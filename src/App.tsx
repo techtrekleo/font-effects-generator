@@ -158,7 +158,7 @@ const App: React.FC = () => {
     canvasSizeId === 'square';
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8" style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
+    <div className="text-white min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8" style={{ fontFamily: "'Noto Sans TC', sans-serif", background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2d2d2d 100%)' }}>
       <header className="w-full max-w-7xl mb-6 text-center">
         <h1 className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-600" style={{ fontFamily: "'Noto Sans TC', sans-serif", fontWeight: 900 }}>字體特效產生器</h1>
         <p className="text-gray-400 mt-2">三個可拖動文字區塊，創造獨一無二的客製化字卡</p>
@@ -285,7 +285,7 @@ const App: React.FC = () => {
       
       {/* 抖內按鈕頁腳 */}
       <footer className="w-full max-w-7xl mt-8 mb-4">
-        <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700 text-center">
+        <div className="bg-gray-900/80 backdrop-blur-sm border-t border-gray-600 p-6 rounded-2xl shadow-2xl text-center">
           <div className="flex flex-col items-center gap-4">
             <p className="text-gray-300 text-sm">© {new Date().getFullYear()} Sonic Pulse. Built with ❤️ by 音樂脈動-Sonic Pulse</p>
             <p className="mt-2">
@@ -293,20 +293,36 @@ const App: React.FC = () => {
                 href="https://www.youtube.com/@%E9%9F%B3%E6%A8%82%E8%84%88%E5%8B%95SonicPulse" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 font-medium"
+                className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200"
               >
                 🎵 Sonic Pulse YouTube Channel
               </a>
             </p>
-            <a
-              href="https://www.paypal.com/ncp/payment/PK49RJYSTAV6Y"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-full font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              <span className="text-xl">🐱</span>
-              <span>抖內支持開發者</span>
-            </a>
+            <div className="mt-4">
+              <p className="text-gray-400 mb-3">喜歡我的工具嗎？請我喝杯咖啡吧！</p>
+              <a
+                href="https://buymeacoffee.com/sonicpulse2025"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 text-white px-8 py-4 rounded-2xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-white/20 relative overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, #ff6b9d 0%, #4ecdc4 100%)',
+                  fontFamily: "'Noto Sans TC', sans-serif",
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                <img 
+                  src="/assets/cat-avatar.png" 
+                  alt="口袋裡的貓" 
+                  className="w-8 h-8 rounded-full"
+                  style={{ width: '2rem', height: '2rem' }}
+                />
+                <div className="flex flex-col items-start">
+                  <span className="text-lg font-semibold">贊助口袋裡的貓</span>
+                  <span className="text-sm opacity-80">Buy me a coffee</span>
+                </div>
+              </a>
+            </div>
           </div>
         </div>
       </footer>
