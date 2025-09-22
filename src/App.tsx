@@ -284,45 +284,43 @@ const App: React.FC = () => {
       </main>
       
       {/* 抖內按鈕頁腳 */}
-      <footer className="w-full max-w-7xl mt-8 mb-4">
-        <div className="bg-gray-900/80 backdrop-blur-sm border-t border-gray-600 p-6 rounded-2xl shadow-2xl text-center">
-          <div className="flex flex-col items-center gap-4">
-            <p className="text-gray-300 text-sm">© {new Date().getFullYear()} Sonic Pulse. Built with ❤️ by 音樂脈動-Sonic Pulse</p>
-            <p className="mt-2">
-              <a 
-                href="https://www.youtube.com/@%E9%9F%B3%E6%A8%82%E8%84%88%E5%8B%95SonicPulse" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200"
-              >
-                🎵 Sonic Pulse YouTube Channel
-              </a>
-            </p>
-            <div className="mt-4">
-              <p className="text-gray-400 mb-3">喜歡我的工具嗎？請我喝杯咖啡吧！</p>
-              <a
-                href="https://buymeacoffee.com/sonicpulse2025"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 text-white px-8 py-4 rounded-2xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-white/20 relative overflow-hidden"
-                style={{
-                  background: 'linear-gradient(135deg, #ff6b9d 0%, #4ecdc4 100%)',
-                  fontFamily: "'Noto Sans TC', sans-serif",
-                  backdropFilter: 'blur(10px)'
-                }}
-              >
-                <img 
-                  src="/assets/cat-avatar.png" 
-                  alt="口袋裡的貓" 
-                  className="w-8 h-8 rounded-full"
-                  style={{ width: '2rem', height: '2rem' }}
-                />
-                <div className="flex flex-col items-start">
-                  <span className="text-lg font-semibold">贊助口袋裡的貓</span>
-                  <span className="text-sm opacity-80">Buy me a coffee</span>
-                </div>
-              </a>
-            </div>
+      <footer className="w-full max-w-7xl mt-8 mb-4 text-center">
+        <div className="flex flex-col items-center gap-4">
+          <p className="text-gray-300 text-sm">© {new Date().getFullYear()} Sonic Pulse. Built with ❤️ by 音樂脈動-Sonic Pulse</p>
+          <p className="mt-2">
+            <a 
+              href="https://www.youtube.com/@%E9%9F%B3%E6%A8%82%E8%84%88%E5%8B%95SonicPulse" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200"
+            >
+              🎵 Sonic Pulse YouTube Channel
+            </a>
+          </p>
+          <div className="mt-4">
+            <p className="text-gray-400 mb-3">喜歡我的工具嗎？請我喝杯咖啡吧！</p>
+            <a
+              href="https://buymeacoffee.com/sonicpulse2025"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 text-white px-8 py-4 rounded-2xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-white/20 relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, #ff6b9d 0%, #4ecdc4 100%)',
+                fontFamily: "'Noto Sans TC', sans-serif",
+                backdropFilter: 'blur(10px)'
+              }}
+            >
+              <img 
+                src="/assets/cat-avatar.png" 
+                alt="口袋裡的貓" 
+                className="w-8 h-8 rounded-full"
+                style={{ width: '2rem', height: '2rem' }}
+              />
+              <div className="flex flex-col items-start">
+                <span className="text-lg font-semibold">贊助口袋裡的貓</span>
+                <span className="text-sm opacity-80">Buy me a coffee</span>
+              </div>
+            </a>
           </div>
         </div>
       </footer>
