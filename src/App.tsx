@@ -164,89 +164,14 @@ const App: React.FC = () => {
         <p className="text-gray-400 mt-2">三個可拖動文字區塊，創造獨一無二的客製化字卡</p>
       </header>
       
-      <main className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* 左側控制面板 */}
-        <div className="space-y-6">
-          {/* 基礎設置 */}
-          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
-            <div className="flex flex-col gap-3">
-              <label className="block text-lg font-semibold text-gray-300">1. 選擇畫布尺寸</label>
-              <div className="grid grid-cols-2 gap-3">
-                {canvasSizes.map(size => (
-                  <button
-                    key={size.id}
-                    onClick={() => setCanvasSizeId(size.id)}
-                    className={`py-2 px-3 rounded-lg text-center font-semibold transition-all duration-200 border-2 text-sm truncate ${
-                      canvasSizeId === size.id ? 'bg-cyan-600 border-cyan-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'
-                    }`}
-                    title={`${size.name} (${size.width}x${size.height})`}
-                  >
-                    {size.name}
-                  </button>
-                ))}
-              </div>
-            </div>
+      <main className="w-full max-w-7xl space-y-8">
+        {/* 頂部預覽區域 - 佔滿一整行 */}
+        <div className="bg-gray-800/20 p-6 rounded-2xl border border-dashed border-gray-700">
+          <div className="text-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-300">即時預覽</h2>
+            <p className="text-sm text-gray-400">點擊文字區塊進行編輯</p>
           </div>
-
-          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
-            <div className="flex flex-col gap-3">
-              <label className="block text-lg font-semibold text-gray-300">2. 上傳背景 (選用)</label>
-              <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
-              <div className="flex gap-3">
-                <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg transition">
-                  <PhotoIcon /> 上傳圖片
-                </button>
-                {backgroundImage && (
-                  <button onClick={handleClearImage} className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition">
-                    <ClearIcon /> 清除圖片
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* 文字區塊選擇 */}
-          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
-            <div className="flex flex-col gap-3">
-              <label className="block text-lg font-semibold text-gray-300">3. 選擇文字區塊</label>
-              <div className="grid grid-cols-3 gap-2">
-                {textBlocks.map(textBlock => (
-                  <button
-                    key={textBlock.id}
-                    onClick={() => setSelectedTextBlockId(textBlock.id)}
-                    className={`py-2 px-3 rounded-lg font-semibold transition-colors text-sm ${
-                      selectedTextBlockId === textBlock.id ? 'bg-cyan-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
-                    }`}
-                  >
-                    {textBlock.type === 'main' ? '主標題' : textBlock.type === 'sub1' ? '副標題一' : '副標題二'}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* 操作按鈕 */}
-          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
-            <div className="flex flex-col gap-4">
-              <button onClick={handleInspiration} className="w-full flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg">
-                <InspirationIcon /> 給我靈感！
-              </button>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button onClick={handleDownload} disabled={!outputImage} className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg">
-                  <DownloadIcon /> 下載圖片
-                </button>
-                <button onClick={handleClear} disabled={isPristine} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg disabled:bg-gray-600 disabled:cursor-not-allowed">
-                  <ClearIcon /> 全部清除
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 右側區域 */}
-        <div className="space-y-6">
-          {/* 預覽區域 */}
-          <div className="bg-gray-800/20 p-4 rounded-2xl border border-dashed border-gray-700">
+          <div className="flex justify-center">
             <VisualCanvas
               textBlocks={textBlocks}
               backgroundImage={backgroundImage}
@@ -257,30 +182,114 @@ const App: React.FC = () => {
               onTextBlockUpdate={handleTextBlockUpdate}
             />
           </div>
+        </div>
 
-          {/* 文字編輯面板 */}
-          {selectedTextBlockId && (
+        {/* 底部設定區域 - 左右兩欄 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* 左側設定面板 */}
+          <div className="space-y-6">
+            {/* 基礎設置 */}
             <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-300 mb-4">4. 編輯選中文字區塊</h3>
-              <DraggableTextBlock
-                textBlock={textBlocks.find(tb => tb.id === selectedTextBlockId)!}
-                onUpdate={handleTextBlockUpdate}
-                isSelected={true}
-              />
+              <div className="flex flex-col gap-3">
+                <label className="block text-lg font-semibold text-gray-300">1. 選擇畫布尺寸</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {canvasSizes.map(size => (
+                    <button
+                      key={size.id}
+                      onClick={() => setCanvasSizeId(size.id)}
+                      className={`py-2 px-3 rounded-lg text-center font-semibold transition-all duration-200 border-2 text-sm truncate ${
+                        canvasSizeId === size.id ? 'bg-cyan-600 border-cyan-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'
+                      }`}
+                      title={`${size.name} (${size.width}x${size.height})`}
+                    >
+                      {size.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          )}
 
-          {/* 預設管理 */}
-          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
-            <div className="flex flex-col gap-4">
-              <h3 className="text-lg font-semibold text-gray-300">5. 預設管理</h3>
-              <PresetManager
-                textBlocks={textBlocks}
-                backgroundImage={backgroundImage}
-                canvasSizeId={canvasSizeId}
-                selectedTextBlockId={selectedTextBlockId}
-                onLoadPreset={handleLoadPreset}
-              />
+            <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
+              <div className="flex flex-col gap-3">
+                <label className="block text-lg font-semibold text-gray-300">2. 上傳背景 (選用)</label>
+                <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
+                <div className="flex gap-3">
+                  <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                    <PhotoIcon /> 上傳圖片
+                  </button>
+                  {backgroundImage && (
+                    <button onClick={handleClearImage} className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                      <ClearIcon /> 清除圖片
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 文字區塊選擇 */}
+            <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
+              <div className="flex flex-col gap-3">
+                <label className="block text-lg font-semibold text-gray-300">3. 選擇文字區塊</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {textBlocks.map(textBlock => (
+                    <button
+                      key={textBlock.id}
+                      onClick={() => setSelectedTextBlockId(textBlock.id)}
+                      className={`py-2 px-3 rounded-lg font-semibold transition-colors text-sm ${
+                        selectedTextBlockId === textBlock.id ? 'bg-cyan-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
+                      }`}
+                    >
+                      {textBlock.type === 'main' ? '主標題' : textBlock.type === 'sub1' ? '副標題一' : '副標題二'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 右側編輯面板 */}
+          <div className="space-y-6">
+            {/* 文字編輯面板 */}
+            {selectedTextBlockId && (
+              <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-300 mb-4">4. 編輯選中文字區塊</h3>
+                <DraggableTextBlock
+                  textBlock={textBlocks.find(tb => tb.id === selectedTextBlockId)!}
+                  onUpdate={handleTextBlockUpdate}
+                  isSelected={true}
+                />
+              </div>
+            )}
+
+            {/* 預設管理 */}
+            <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
+              <div className="flex flex-col gap-4">
+                <h3 className="text-lg font-semibold text-gray-300">5. 預設管理</h3>
+                <PresetManager
+                  textBlocks={textBlocks}
+                  backgroundImage={backgroundImage}
+                  canvasSizeId={canvasSizeId}
+                  selectedTextBlockId={selectedTextBlockId}
+                  onLoadPreset={handleLoadPreset}
+                />
+              </div>
+            </div>
+
+            {/* 操作按鈕 */}
+            <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
+              <div className="flex flex-col gap-4">
+                <button onClick={handleInspiration} className="w-full flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+                  <InspirationIcon /> 給我靈感！
+                </button>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button onClick={handleDownload} disabled={!outputImage} className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+                    <DownloadIcon /> 下載圖片
+                  </button>
+                  <button onClick={handleClear} disabled={isPristine} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg disabled:bg-gray-600 disabled:cursor-not-allowed">
+                    <ClearIcon /> 全部清除
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
