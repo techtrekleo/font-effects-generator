@@ -191,7 +191,7 @@ const App: React.FC = () => {
             {/* 基礎設置 */}
             <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
               <div className="flex flex-col gap-3">
-                <label className="block text-lg font-semibold text-gray-300">1. 選擇畫布尺寸</label>
+                <label className="block text-lg font-semibold text-gray-300">選擇畫布尺寸</label>
                 <div className="grid grid-cols-2 gap-3">
                   {canvasSizes.map(size => (
                     <button
@@ -211,7 +211,7 @@ const App: React.FC = () => {
 
             <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
               <div className="flex flex-col gap-3">
-                <label className="block text-lg font-semibold text-gray-300">2. 上傳背景 (選用)</label>
+                <label className="block text-lg font-semibold text-gray-300">上傳背景 (選用)</label>
                 <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
                 <div className="flex gap-3">
                   <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg transition">
@@ -229,7 +229,7 @@ const App: React.FC = () => {
             {/* 文字區塊選擇 */}
             <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
               <div className="flex flex-col gap-3">
-                <label className="block text-lg font-semibold text-gray-300">3. 選擇文字區塊</label>
+                <label className="block text-lg font-semibold text-gray-300">選擇文字區塊</label>
                 <div className="grid grid-cols-3 gap-2">
                   {textBlocks.map(textBlock => (
                     <button
@@ -245,26 +245,11 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* 右側編輯面板 */}
-          <div className="space-y-6">
-            {/* 文字編輯面板 */}
-            {selectedTextBlockId && (
-              <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-300 mb-4">4. 編輯選中文字區塊</h3>
-                <DraggableTextBlock
-                  textBlock={textBlocks.find(tb => tb.id === selectedTextBlockId)!}
-                  onUpdate={handleTextBlockUpdate}
-                  isSelected={true}
-                />
-              </div>
-            )}
 
             {/* 預設管理 */}
             <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
               <div className="flex flex-col gap-4">
-                <h3 className="text-lg font-semibold text-gray-300">5. 預設管理</h3>
+                <h3 className="text-lg font-semibold text-gray-300">預設管理</h3>
                 <PresetManager
                   textBlocks={textBlocks}
                   backgroundImage={backgroundImage}
@@ -291,6 +276,21 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* 右側編輯面板 */}
+          <div className="space-y-6">
+            {/* 文字編輯面板 */}
+            {selectedTextBlockId && (
+              <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-300 mb-4">編輯選中文字區塊</h3>
+                <DraggableTextBlock
+                  textBlock={textBlocks.find(tb => tb.id === selectedTextBlockId)!}
+                  onUpdate={handleTextBlockUpdate}
+                  isSelected={true}
+                />
+              </div>
+            )}
           </div>
         </div>
       </main>
