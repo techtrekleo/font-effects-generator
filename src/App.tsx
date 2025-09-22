@@ -164,9 +164,10 @@ const App: React.FC = () => {
         <p className="text-gray-400 mt-2">三個可拖動文字區塊，創造獨一無二的客製化字卡</p>
       </header>
       
-      <main className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <main className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* 左側控制面板 */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="space-y-6">
+          {/* 基礎設置 */}
           <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
             <div className="flex flex-col gap-3">
               <label className="block text-lg font-semibold text-gray-300">1. 選擇畫布尺寸</label>
@@ -224,31 +225,6 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* 當前選中文字區塊的編輯面板 */}
-          {selectedTextBlockId && (
-            <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
-              <DraggableTextBlock
-                textBlock={textBlocks.find(tb => tb.id === selectedTextBlockId)!}
-                onUpdate={handleTextBlockUpdate}
-                isSelected={true}
-              />
-            </div>
-          )}
-
-          {/* 預設管理 */}
-          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
-            <div className="flex flex-col gap-4">
-              <h3 className="text-lg font-semibold text-gray-300">4. 預設管理</h3>
-              <PresetManager
-                textBlocks={textBlocks}
-                backgroundImage={backgroundImage}
-                canvasSizeId={canvasSizeId}
-                selectedTextBlockId={selectedTextBlockId}
-                onLoadPreset={handleLoadPreset}
-              />
-            </div>
-          </div>
-
           {/* 操作按鈕 */}
           <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
             <div className="flex flex-col gap-4">
@@ -267,8 +243,9 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* 右側預覽區域 */}
-        <div className="lg:col-span-2">
+        {/* 右側區域 */}
+        <div className="space-y-6">
+          {/* 預覽區域 */}
           <div className="bg-gray-800/20 p-4 rounded-2xl border border-dashed border-gray-700">
             <VisualCanvas
               textBlocks={textBlocks}
@@ -279,6 +256,32 @@ const App: React.FC = () => {
               onTextBlockClick={setSelectedTextBlockId}
               onTextBlockUpdate={handleTextBlockUpdate}
             />
+          </div>
+
+          {/* 文字編輯面板 */}
+          {selectedTextBlockId && (
+            <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-300 mb-4">4. 編輯選中文字區塊</h3>
+              <DraggableTextBlock
+                textBlock={textBlocks.find(tb => tb.id === selectedTextBlockId)!}
+                onUpdate={handleTextBlockUpdate}
+                isSelected={true}
+              />
+            </div>
+          )}
+
+          {/* 預設管理 */}
+          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-semibold text-gray-300">5. 預設管理</h3>
+              <PresetManager
+                textBlocks={textBlocks}
+                backgroundImage={backgroundImage}
+                canvasSizeId={canvasSizeId}
+                selectedTextBlockId={selectedTextBlockId}
+                onLoadPreset={handleLoadPreset}
+              />
+            </div>
           </div>
         </div>
       </main>
